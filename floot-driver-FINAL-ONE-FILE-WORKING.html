@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Floot NG Driver - Bolt Premium</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--purple:#7C3AED;--purple2:#A78BFA;--purple3:#EDE9FE;--dark:#1F1A2E;--muted:#8B8BA7;--green:#10B981;--white:#fff}
+body{font-family:Inter,system-ui,sans-serif;background:#FBFAFF;color:var(--dark);overflow:hidden}
+.app{max-width:440px;margin:0 auto;height:100vh;background:#fff;position:relative;display:flex;flex-direction:column;overflow:hidden}
+.auth-bg{background:linear-gradient(180deg,#7C3AED 0%, #5B21B6 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:fixed;inset:0;z-index:100000}
+.auth-card{width:100%;max-width:380px;background:#fff;border-radius:28px;padding:28px;box-shadow:0 20px 60px rgba(92,33,182,.3)}
+.input{width:100%;background:#F5F3FF;border:1px solid #EDE9FE;border-radius:14px;padding:14px 14px 14px 42px;font-size:14px;outline:none;margin-bottom:10px}
+.input-wrap{position:relative}
+.input-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--purple2)}
+.btn{border:none;border-radius:14px;padding:14px;font-weight:800;font-size:14px;cursor:pointer;transition:.2s}
+.btn-primary{background:linear-gradient(90deg,#7C3AED,#8B5CF6);color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.25)}
+.btn-ghost{background:#F5F3FF;color:var(--purple);border:1px solid #EDE9FE}
+.btn-dark{background:#1F1A2E;color:#fff}
+.tabs{display:flex;background:#F5F3FF;border-radius:12px;padding:4px;margin-bottom:16px}
+.tab{flex:1;padding:10px;border-radius:10px;text-align:center;font-weight:800;font-size:13px;cursor:pointer;color:var(--muted)}
+.tab.active{background:#fff;color:var(--purple);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;background:#fff;border-bottom:1px solid #F3F0FF;z-index:10}
+.avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#A78BFA);display:grid;place-items:center;color:#fff;font-weight:900}
+.online-pill{display:flex;align-items:center;gap:8px;background:#F5F3FF;border:1px solid #EDE9FE;border-radius:999px;padding:6px 12px;cursor:pointer}
+.switch{width:40px;height:24px;background:#E5E7EB;border-radius:999px;position:relative;transition:.2s}
+.switch.on{background:#10B981}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.switch.on::after{left:18px}
+.map-container{flex:1;position:relative;background:#F5F3FF}
+#driverMap{width:100%;height:100%;z-index:1}
+.bottom-sheet{background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.12);padding:16px;position:relative;z-index:20;max-height:55vh;overflow:auto}
+.card{background:#fff;border:1px solid #F3F0FF;border-radius:18px;padding:14px;box-shadow:0 4px 20px rgba(124,58,237,.06);margin-bottom:10px}
+.incoming{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);display:none;align-items:end;justify-content:center;padding:12px}
+.incoming.show{display:flex}
+.incoming-card{width:100%;max-width:420px;background:#fff;border-radius:28px;overflow:hidden;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
+.pulse{animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(124,58,237,.4)}70%{box-shadow:0 0 0 16px rgba(124,58,237,0)}100%{box-shadow:0 0 0 0 rgba(124,58,237,0)}}
+.trip-locked{position:fixed;inset:0;z-index:10000;background:#fff;display:none;flex-direction:column}
+.trip-locked.active{display:flex}
+.trip-map{height:42vh;position:relative;background:#F5F3FF}
+#tripMap{width:100%;height:100%}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #F3F0FF;display:flex;justify-content:space-around;padding:8px 0 14px;z-index:50}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;padding:6px 18px;border-radius:12px}
+.nav-item.active{color:var(--purple);background:#F5F3FF}
+.nav-item i{font-size:18px}
+.history-item{display:flex;gap:12px;padding:12px;border:1px solid #F3F0FF;border-radius:14px;margin-bottom:8px;background:#fff}
+.small{font-size:11px;color:var(--muted)}
+.parcel-thumb{width:60px;height:60px;border-radius:12px;object-fit:cover;background:#F5F3FF;border:1px solid #EDE9FE}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth-bg">
+  <div style="text-align:center;color:#fff;margin-bottom:18px">
+    <div style="width:72px;height:72px;border-radius:20px;background:rgba(255,255,255,.2);display:grid;place-items:center;margin:0 auto 12px;font-size:32px;backdrop-filter:blur(10px)">🏍️</div>
+    <div style="font-weight:900;font-size:24px;letter-spacing:-.02em">FLOOT NG DRIVER</div>
+    <div style="opacity:.85;font-size:12px;margin-top:6px;font-weight:600">Bolt-Style • Premium • Map • Sound • History</div>
+    <div style="margin-top:10px;display:flex;gap:6px;justify-content:center"><span style="background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800">PURPLE & WHITE</span><span style="background:#10B981;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;color:#fff">● PREMIUM</span></div>
+  </div>
+  <div class="auth-card">
+    <div class="tabs"><div id="loginTab" class="tab active">Login</div><div id="regTab" class="tab">Register</div></div>
+    <div id="loginForm">
+      <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input id="loginEmail" class="input" type="email" placeholder="Email"></div>
+      <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="loginPass" class="input" type="password" placeholder="Password"></div>
+      <button id="loginBtn" class="btn btn-primary" style="width:100%">LOGIN TO FLOOT</button>
+      <div id="loginMsg" class="small" style="text-align:center;margin-top:10px"></div>
+    </div>
+    <div id="regForm" style="display:none">
+      <div class="input-wrap"><i class="fa-solid fa-user"></i><input id="regName" class="input" placeholder="Full Name *"></div>
+      <div class="input-wrap"><i class="fa-solid fa-phone"></i><input id="regPhone" class="input" placeholder="Phone (080...) *"></div>
+      <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input id="regEmail" class="input" type="email" placeholder="Email *"></div>
+      <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="regPass" class="input" type="password" placeholder="Password min 6 *"></div>
+      <div class="input-wrap"><i class="fa-solid fa-motorcycle"></i><input id="regBike" class="input" placeholder="Bike Number *"></div>
+      <button id="regBtn" class="btn btn-primary" style="width:100%">CREATE DRIVER ACCOUNT</button>
+      <div id="regMsg" class="small" style="text-align:center;margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="mainApp" style="display:none">
+  <!-- Header Bolt Style -->
+  <div class="header">
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="avatar" id="avatar">D</div>
+      <div><div style="display:flex;align-items:center;gap:8px"><div style="font-weight:800;font-size:14px" id="driverName">Driver</div><div style="background:#FFFBEB;border:1px solid #FDE68A;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;display:flex;gap:3px;align-items:center"><span style="color:#F59E0B">★</span><span id="driverRating">5.0</span><span style="color:#8B8BA7" id="ratingCount">(0)</span></div></div><div class="small" style="display:flex;align-items:center;gap:4px"><span id="driverEmail">driver@floot.ng</span> • <span style="color:#10B981">●</span> <span id="conn">Online</span></div></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="online-pill" id="onlinePill"><div class="switch on" id="onlineSwitch"></div><div style="font-weight:800;font-size:12px" id="onlineText">ONLINE</div></div>
+      <button id="logoutBtn" style="width:36px;height:36px;border-radius:10px;border:1px solid #F3F0FF;background:#fff;color:#6B7280"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </div>
+
+  <!-- Map View -->
+  <div class="map-container" id="homeView">
+    <div id="driverMap"></div>
+    <!-- Top Stats Bolt Style -->
+    <div style="position:absolute;top:12px;left:12px;right:12px;z-index:400;display:flex;gap:8px">
+      <div style="flex:1;background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 4px 20px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#8B8BA7">EARNINGS TODAY</div><div style="font-weight:900;font-size:14px" id="earnings">₦0</div></div><div style="width:32px;height:32px;border-radius:10px;background:#ECFDF5;display:grid;place-items:center;color:#10B981"><i class="fa-solid fa-naira-sign"></i></div></div>
+      <div style="flex:1;background:#1F1A2E;color:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 4px 20px rgba(0,0,0,.15);display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;opacity:.6">TRIPS</div><div style="font-weight:900;font-size:14px" id="trips">0</div></div><div style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.15);display:grid;place-items:center"><i class="fa-solid fa-route"></i></div></div>
+    </div>
+    <!-- Center on me -->
+    <button id="centerMeBtn" style="position:absolute;bottom:110px;right:12px;z-index:400;width:44px;height:44px;border-radius:12px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.12);border:1px solid #F3F0FF;color:#7C3AED"><i class="fa-solid fa-crosshairs"></i></button>
+  </div>
+
+  <!-- History View -->
+  <div id="historyView" style="flex:1;overflow:auto;padding:16px;background:#FBFAFF;display:none">
+    <div style="font-weight:900;font-size:18px;margin-bottom:12px">Trip History</div>
+    <div id="historyBox"><div class="small">No trips yet</div></div>
+  </div>
+
+  <!-- Earnings View -->
+  <div id="earningsView" style="flex:1;overflow:auto;padding:16px;background:#FBFAFF;display:none">
+    <div style="font-weight:900;font-size:18px;margin-bottom:12px">Earnings</div>
+    <div class="card" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;border:none"><div style="font-size:11px;opacity:.8;font-weight:800;letter-spacing:.1em">TOTAL EARNINGS</div><div style="font-size:32px;font-weight:900;margin-top:6px" id="earnTotal">₦0</div><div class="small" style="color:rgba(255,255,255,.7);margin-top:4px" id="earnTrips">0 trips completed</div></div>
+    <div class="card"><div style="display:flex;justify-content:space-between"><span class="small">Today</span><b id="earnToday">₦0</b></div></div>
+    <div id="earnList"></div>
+  </div>
+
+  <!-- Bottom Sheet for Home -->
+  <div class="bottom-sheet" id="bottomSheet">
+    <div style="width:36px;height:4px;background:#EDE9FE;border-radius:999px;margin:0 auto 12px"></div>
+    <div id="activeBox"></div>
+    <div id="waitingBox">
+      <div style="display:flex;gap:12px;align-items:center"><div style="width:44px;height:44px;border-radius:12px;background:#F5F3FF;display:grid;place-items:center;color:#7C3AED" class="pulse"><i class="fa-solid fa-satellite-dish"></i></div><div><div style="font-weight:800">Waiting for orders</div><div class="small">Stay online • Sound ON • Map active • Real locations</div></div></div>
+      <div style="margin-top:12px;background:#FAF7FF;border:1px dashed #DDD6FE;border-radius:12px;padding:10px;display:flex;gap:8px;align-items:center"><div style="width:28px;height:28px;border-radius:8px;background:#7C3AED;display:grid;place-items:center;color:#fff"><i class="fa-solid fa-volume-high" style="font-size:12px"></i></div><div class="small" style="flex:1">Bolt-style sound will play on new request + vibration</div><button id="testSoundBtn" style="background:#fff;border:1px solid #EDE9FE;padding:6px 10px;border-radius:999px;font-size:10px;font-weight:800;color:#7C3AED">TEST</button></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav Bolt Style -->
+  <div class="bottom-nav">
+    <div class="nav-item active" data-view="home"><i class="fa-solid fa-house"></i>Home</div>
+    <div class="nav-item" data-view="earnings"><i class="fa-solid fa-wallet"></i>Earnings</div>
+    <div class="nav-item" data-view="history"><i class="fa-solid fa-clock-rotate-left"></i>History</div>
+    <div class="nav-item" data-view="profile"><i class="fa-solid fa-user"></i>Profile</div>
+  </div>
+</div>
+
+<!-- Incoming Order - Bolt Style with Map -->
+<div id="incoming" class="incoming">
+  <div class="incoming-card">
+    <div style="height:180px;position:relative;background:#F5F3FF"><div id="incomingMap" style="width:100%;height:100%"></div><div style="position:absolute;top:12px;left:12px;background:#1F1A2E;color:#fff;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:800;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;background:#10B981;border-radius:50%;animation:pulse 1.5s infinite"></div> NEW REQUEST</div><div style="position:absolute;top:12px;right:12px;background:#fff;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.1)" id="countdown">25s</div></div>
+    <div style="padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-weight:900;font-size:16px" id="inTitle">Ketu → Lekki</div><div class="small" style="margin-top:2px" id="inDistance">5.2 km • Real distance • ~12 min</div></div><div style="text-align:right"><div style="font-weight:900;font-size:20px;color:#7C3AED" id="inOffer">₦1,040</div><div class="small">Fare</div></div></div>
+      <div style="margin-top:12px;background:#FAF7FF;border:1px solid #EDE9FE;border-radius:14px;padding:12px">
+        <div style="display:flex;gap:10px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:10px;height:10px;background:#10B981;border-radius:50%"></div><div style="width:2px;height:24px;background:#EDE9FE;margin:4px 0"></div><div style="width:10px;height:10px;background:#7C3AED;border-radius:50%"></div></div><div style="flex:1"><div><div class="small" style="font-weight:800;letter-spacing:.08em">PICKUP • Real location</div><div style="font-weight:700;font-size:13px" id="inPickup">Ketu, Lagos</div><div class="small" id="inPickupAddr">Fetching address...</div></div><div style="margin-top:10px"><div class="small" style="font-weight:800;letter-spacing:.08em">DROPOFF • Real location</div><div style="font-weight:700;font-size:13px" id="inDropoff">Lekki, Lagos</div><div class="small" id="inDropoffAddr">Fetching address...</div></div></div></div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center"><img id="inParcelImg" style="width:52px;height:52px;border-radius:12px;object-fit:cover;background:#F5F3FF;display:none"><div style="flex:1"><div class="small" style="font-weight:800">PARCEL</div><div style="font-size:12px;font-weight:700" id="inItem">Food • Parcel</div><div class="small" id="inDesc">Customer added photo</div></div><div style="background:#EDE9FE;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;color:#7C3AED" id="inOtpBadge" style="display:none">OTP HIDDEN</div></div>
+      <div style="display:flex;gap:10px;margin-top:14px"><button id="declineBtn" class="btn btn-ghost" style="flex:1">DECLINE</button><button id="acceptBtn" class="btn btn-primary" style="flex:1.3">ACCEPT • <span id="inOffer2">₦0</span></button></div>
+      <div class="small" style="text-align:center;margin-top:8px;color:#8B8BA7">🔊 Sound playing • 📳 Vibrating • Accepts locks trip</div>
+    </div>
+  </div>
+</div>
+
+<!-- Locked Trip Screen - Bolt Style -->
+<div id="tripLocked" class="trip-locked">
+  <div class="trip-map"><div id="tripMap"></div><div style="position:absolute;top:12px;left:12px;right:12px;z-index:400;display:flex;justify-content:space-between"><div style="background:#1F1A2E;color:#fff;padding:8px 12px;border-radius:12px;font-size:11px;font-weight:800;display:flex;gap:8px;align-items:center"><div style="width:8px;height:8px;background:#10B981;border-radius:50%"></div> ACTIVE TRIP • LOCKED</div><div style="background:#fff;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,.1)">🔒 Cannot exit</div></div><button id="tripCenterBtn" style="position:absolute;bottom:12px;right:12px;z-index:400;width:40px;height:40px;border-radius:12px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15);border:none;color:#7C3AED"><i class="fa-solid fa-crosshairs"></i></button></div>
+  <div style="flex:1;overflow:auto;background:#FBFAFF;padding:14px;display:flex;flex-direction:column;gap:12px">
+    <div class="card" style="margin:0;display:flex;gap:12px;align-items:center">
+      <img id="tripParcelImg" style="width:72px;height:72px;border-radius:14px;object-fit:cover;background:#F5F3FF;border:1px solid #EDE9FE;display:none">
+      <div id="tripParcelNoImg" style="width:72px;height:72px;border-radius:14px;background:#F5F3FF;border:2px dashed #DDD6FE;display:grid;place-items:center;color:#8B8BA7"><i class="fa-solid fa-image"></i></div>
+      <div style="flex:1"><div style="font-weight:800" id="tripHeaderTitle">Ketu → Lekki</div><div class="small" id="tripDistance">5.2 km • Real route</div><div style="margin-top:4px;display:flex;gap:6px"><span style="background:#ECFDF5;color:#065F46;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:800" id="tripFare">₦1,040</span><span style="background:#1F1A2E;color:#fff;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:800">OTP HIDDEN</span></div></div>
+    </div>
+    <div class="card" style="margin:0;display:flex;gap:12px;align-items:center">
+      <div id="tripCustAv" style="width:48px;height:48px;border-radius:12px;background:#EDE9FE;display:grid;place-items:center;overflow:hidden;font-weight:900;color:#7C3AED"><i class="fa-solid fa-user"></i></div>
+      <div style="flex:1"><div style="font-weight:800" id="tripCustName">Customer</div><div style="display:flex;align-items:center;gap:6px;margin-top:2px"><div style="background:#F5F3FF;border:1px solid #EDE9FE;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;color:#1F1A2E" id="tripCustPhone">080...</div><span style="font-size:10px;background:#10B981;color:#fff;padding:2px 6px;border-radius:999px">TAP TO CALL</span></div><div class="small" id="tripItem">Parcel</div></div>
+      <button id="tripCallBtn" style="width:56px;height:56px;border-radius:14px;background:#10B981;color:#fff;border:none;box-shadow:0 4px 12px rgba(16,185,129,.3)"><i class="fa-solid fa-phone" style="font-size:18px"></i></button>
+    </div>
+    <div class="card" style="margin:0" id="pickupPhase">
+      <div style="display:flex;gap:10px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:14px;height:14px;background:#10B981;border-radius:50%;border:3px solid #D1FAE5"></div><div style="width:2px;height:20px;background:#EDE9FE;margin:4px 0"></div><div style="width:14px;height:14px;background:#E5E7EB;border-radius:50%;border:3px solid #F3F0FF" id="dropDot"></div></div><div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#10B981">STEP 1 • PICKUP</div><div style="font-weight:800;font-size:14px" id="tripPickup">Ketu</div><div class="small" id="tripPickupFull">Real address</div></div><button id="goPickupBtn" style="background:#1F1A2E;color:#fff;border:none;padding:10px 14px;border-radius:999px;font-size:11px;font-weight:800"><i class="fa-solid fa-location-arrow"></i> NAVIGATE</button></div>
+        <button id="pickedUpBtn" style="width:100%;margin-top:12px;background:linear-gradient(90deg,#10B981,#34D399);color:#fff;border:none;padding:14px;border-radius:14px;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(16,185,129,.3)"><i class="fa-solid fa-box"></i> PICKED UP • Item collected</button>
+        <div class="small" style="text-align:center;margin-top:6px;color:#065F46">Press after collecting parcel from customer</div>
+        <button id="cancelTripBtn1" style="width:100%;margin-top:10px;background:#fff;border:1px solid #FECACA;color:#DC2626;padding:10px;border-radius:12px;font-weight:800;font-size:11px"><i class="fa-solid fa-xmark"></i> CANCEL TRIP</button>
+      </div></div>
+    </div>
+
+    <div class="card" style="margin:0;display:none" id="dropoffPhase">
+      <div style="display:flex;gap:10px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:14px;height:14px;background:#E5E7EB;border-radius:50%;border:3px solid #F3F0FF"></div><div style="width:2px;height:20px;background:#7C3AED;margin:4px 0"></div><div style="width:14px;height:14px;background:#7C3AED;border-radius:50%;border:3px solid #EDE9FE;animation:pulse 2s infinite"></div></div><div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#7C3AED">STEP 2 • DROPOFF • START TRIP</div><div style="font-weight:800;font-size:14px" id="tripDropoff">Lekki</div><div class="small" id="tripDropoffFull">Real address</div></div><button id="goDropoffBtn" style="background:#7C3AED;color:#fff;border:none;padding:10px 14px;border-radius:999px;font-size:11px;font-weight:800"><i class="fa-solid fa-location-arrow"></i> NAVIGATE</button></div>
+        <button id="startTripBtn" style="width:100%;margin-top:12px;background:#1F1A2E;color:#fff;border:none;padding:14px;border-radius:14px;font-weight:900;font-size:13px"><i class="fa-solid fa-route"></i> START TRIP TO DROPOFF</button>
+        <div style="margin-top:10px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:10px;text-align:center"><div style="font-size:10px;font-weight:800;color:#92400E">Trip started • Deliver and ask customer for OTP</div></div>
+        <button id="cancelTripBtn2" style="width:100%;margin-top:10px;background:#fff;border:1px solid #FECACA;color:#DC2626;padding:10px;border-radius:12px;font-weight:800;font-size:11px"><i class="fa-solid fa-xmark"></i> CANCEL TRIP</button>
+      </div></div>
+    </div>
+
+    <div class="card" style="margin:0;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border-color:#FDE68A;display:none" id="otpPhase">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#92400E;display:flex;justify-content:space-between"><span>STEP 3 • COMPLETE WITH OTP</span><span style="background:#92400E;color:#fff;padding:2px 6px;border-radius:999px">HIDDEN FROM DRIVER</span></div>
+      <div style="margin-top:10px;background:#fff;border:1px dashed #FDE68A;border-radius:10px;padding:8px;text-align:center"><div class="small" style="color:#92400E;font-weight:700">🔒 Driver cannot see OTP • Customer must tell you • Only customer screen shows OTP</div></div>
+      <div style="margin-top:10px;display:flex;gap:8px"><input id="tripOtpInput" placeholder="• • • •" maxlength="4" inputmode="numeric" style="flex:1;background:#fff;border:2px solid #FDE68A;border-radius:14px;padding:14px;text-align:center;letter-spacing:.6em;font-size:22px;font-weight:900;outline:none"><button id="tripVerifyBtn" class="btn" style="width:120px;background:#92400E;color:#fff;font-weight:900">VERIFY</button></div>
+      <div id="tripVerifyMsg" style="text-align:center;margin-top:8px;min-height:18px;font-weight:700;font-size:12px"></div>
+      <div class="small" style="text-align:center;margin-top:6px;color:#92400E">Ask customer: "What is your OTP?" • Customer shows phone</div>
+      <button id="cancelTripBtn3" style="width:100%;margin-top:12px;background:#fff;border:1px solid #FECACA;color:#DC2626;padding:10px;border-radius:12px;font-weight:800;font-size:11px"><i class="fa-solid fa-xmark"></i> CANCEL TRIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sound -->
+<audio id="requestSound" preload="auto" loop>
+  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, orderBy, limit, onSnapshot, doc, updateDoc, setDoc, getDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBVIJq5napb_egiLdKhGtySZoPeLUkY9Q4",
+  authDomain: "floot-delivery.firebaseapp.com",
+  projectId: "floot-delivery",
+  storageBucket: "floot-delivery.firebasestorage.app",
+  messagingSenderId: "786230599434",
+  appId: "1:786230599434:web:e1913bd8c2e69a7e1c64f3"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let currentUser=null, allData=[], currentOrder=null, activeTrip=null, timer=null, sec=25, isOnline=true;
+let driverMap=null, tripMap=null, incomingMap=null;
+let driverMarker=null, pickupMarker=null, dropoffMarker=null, routeLine=null;
+let tripDriverMarker=null, tripPickupMarker=null, tripDropoffMarker=null, tripRouteLine=null;
+let watchId=null, userLat=6.5244, userLng=3.3792;
+
+const saved = JSON.parse(localStorage.getItem("floot_driver_session")||"null");
+if(saved) loginWithProfile(saved);
+
+function showLogin(){ document.getElementById("authScreen").style.display="flex"; document.getElementById("mainApp").style.display="none"; }
+function showMain(){ document.getElementById("authScreen").style.display="none"; document.getElementById("mainApp").style.display="flex"; setTimeout(initDriverMap, 300); }
+
+document.getElementById("loginTab").onclick=()=>{ document.getElementById("loginTab").classList.add("active"); document.getElementById("regTab").classList.remove("active"); document.getElementById("loginForm").style.display="block"; document.getElementById("regForm").style.display="none"; };
+document.getElementById("regTab").onclick=()=>{ document.getElementById("regTab").classList.add("active"); document.getElementById("loginTab").classList.remove("active"); document.getElementById("loginForm").style.display="none"; document.getElementById("regForm").style.display="block"; };
+
+function loginWithProfile(p){
+  currentUser=p;
+  document.getElementById("driverName").textContent=p.name||"Driver";
+  document.getElementById("driverEmail").textContent=p.email;
+  document.getElementById("avatar").textContent=(p.name||"D").charAt(0).toUpperCase();
+  // Show local earnings first, then fetch fresh from Firebase
+  document.getElementById("earnings").textContent="₦"+(p.totalEarnings||0).toLocaleString();
+  document.getElementById("earnTotal").textContent="₦"+(p.totalEarnings||0).toLocaleString();
+  document.getElementById("trips").textContent=p.totalTrips||0;
+  document.getElementById("earnTrips").textContent=(p.totalTrips||0)+" trips completed";
+  // Fetch fresh earnings from Firebase immediately
+  getDoc(doc(db,"drivers",p.id)).then(snap=>{
+    if(snap.exists()){
+      const data=snap.data();
+      const freshEarn=data.totalEarnings||0;
+      const freshTrips=data.totalTrips||0;
+      document.getElementById("earnings").textContent="₦"+freshEarn.toLocaleString();
+      document.getElementById("earnTotal").textContent="₦"+freshEarn.toLocaleString();
+      document.getElementById("trips").textContent=freshTrips;
+      document.getElementById("earnTrips").textContent=freshTrips+" trips completed";
+      currentUser.totalEarnings=freshEarn;
+      currentUser.totalTrips=freshTrips;
+      localStorage.setItem("floot_driver_session", JSON.stringify({...p, totalEarnings:freshEarn, totalTrips:freshTrips}));
+    }
+  });
+  showMain();
+  startListener(p.id);
+  startLocation();
+  const savedTripId=localStorage.getItem("floot_active_trip_id");
+  if(savedTripId){ setTimeout(async()=>{ try{ const s=await getDoc(doc(db,"delivery_requests",savedTripId)); if(s.exists()&&s.data().status==="accepted"&&s.data().driverId===p.id) openLockedTrip({id:s.id,...s.data()}); else localStorage.removeItem("floot_active_trip_id"); }catch{} }, 900); }
+}
+
+document.getElementById("regBtn").onclick=async()=>{
+  const name=document.getElementById("regName").value.trim(), phone=document.getElementById("regPhone").value.trim(), email=document.getElementById("regEmail").value.trim().toLowerCase(), pass=document.getElementById("regPass").value.trim(), bike=document.getElementById("regBike").value.trim();
+  const msg=document.getElementById("regMsg");
+  if(!name||!phone||!email||!pass||!bike){ msg.textContent="Fill all"; return; }
+  if(pass.length<6){ msg.textContent="Min 6"; return; }
+  msg.textContent="Creating...";
+  try{ const id=email.replace(/[^a-z0-9]/g,"_"); const ex=await getDoc(doc(db,"drivers",id)); if(ex.exists()){ msg.textContent="Email exists"; return; } const profile={id,name,phone,email,password:pass,bikeNumber:bike,totalEarnings:0,totalTrips:0,createdAt:new Date().toISOString()}; await setDoc(doc(db,"drivers",id),profile); localStorage.setItem("floot_driver_session",JSON.stringify(profile)); msg.textContent="✓ Created"; setTimeout(()=>loginWithProfile(profile),500); }catch(e){ msg.textContent=e.message; }
+};
+document.getElementById("loginBtn").onclick=async()=>{
+  const email=document.getElementById("loginEmail").value.trim().toLowerCase(), pass=document.getElementById("loginPass").value.trim();
+  const msg=document.getElementById("loginMsg");
+  if(!email||!pass){ msg.textContent="Enter email & pass"; return; }
+  msg.textContent="Logging...";
+  try{ const id=email.replace(/[^a-z0-9]/g,"_"); const snap=await getDoc(doc(db,"drivers",id)); if(!snap.exists()){ msg.textContent="No account"; return; } const p=snap.data(); if(p.password!==pass){ msg.textContent="Wrong pass"; return; } localStorage.setItem("floot_driver_session",JSON.stringify(p)); msg.textContent="✓ Success"; setTimeout(()=>loginWithProfile(p),400); }catch(e){ msg.textContent=e.message; }
+};
+document.getElementById("logoutBtn").onclick=()=>{ if(activeTrip){ alert("🔒 Cannot logout during active trip"); return; } localStorage.removeItem("floot_driver_session"); localStorage.removeItem("floot_active_trip_id"); location.reload(); };
+
+function initDriverMap(){
+  if(driverMap) return;
+  driverMap=L.map('driverMap',{zoomControl:false, attributionControl:false}).setView([userLat,userLng],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(driverMap);
+  driverMarker=L.marker([userLat,userLng],{icon:L.divIcon({html:'<div style="width:18px;height:18px;background:#7C3AED;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div>',iconSize:[18,18]})}).addTo(driverMap);
+}
+function initTripMap(){
+  if(tripMap) { tripMap.invalidateSize(); return; }
+  tripMap=L.map('tripMap',{zoomControl:false, attributionControl:false}).setView([userLat,userLng],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(tripMap);
+}
+function initIncomingMap(){
+  if(incomingMap) { incomingMap.invalidateSize(); return; }
+  incomingMap=L.map('incomingMap',{zoomControl:false, attributionControl:false, dragging:false}).setView([6.5244,3.3792],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(incomingMap);
+}
+
+function startLocation(){
+  if(navigator.geolocation){
+    watchId=navigator.geolocation.watchPosition(pos=>{
+      userLat=pos.coords.latitude; userLng=pos.coords.longitude;
+      if(driverMarker) driverMarker.setLatLng([userLat,userLng]);
+      if(tripDriverMarker) tripDriverMarker.setLatLng([userLat,userLng]);
+      if(driverMap) driverMap.setView([userLat,userLng], driverMap.getZoom());
+    },()=>{}, {enableHighAccuracy:true});
+  }
+}
+
+async function geocode(addr){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr+', Lagos, Nigeria')}&limit=1`);
+    const j=await r.json();
+    if(j[0]) return {lat:parseFloat(j[0].lat), lng:parseFloat(j[0].lon), display:j[0].display_name};
+  }catch{}
+  return null;
+}
+async function getRoute(a,b){
+  try{
+    const url=`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson`;
+    const r=await fetch(url);
+    const j=await r.json();
+    if(j.routes&&j.routes[0]) return {coords:j.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]), distance:j.routes[0].distance/1000, duration:j.routes[0].duration/60};
+  }catch{}
+  return null;
+}
+
+function startDriverEarningsListener(driverId){
+  const driverRef=doc(db,"drivers",driverId);
+  onSnapshot(driverRef, snap=>{
+    if(snap.exists()){
+      const data=snap.data();
+      const earn=data.totalEarnings||0;
+      const tripCount=data.totalTrips||0;
+      const avgRating=data.averageRating||5.0;
+      const ratingCount=data.ratingCount||0;
+      document.getElementById("earnings").textContent="₦"+earn.toLocaleString();
+      document.getElementById("earnTotal").textContent="₦"+earn.toLocaleString();
+      document.getElementById("trips").textContent=tripCount;
+      document.getElementById("earnTrips").textContent=tripCount+" trips completed";
+      document.getElementById("driverRating").textContent=avgRating.toFixed(1);
+      document.getElementById("ratingCount").textContent=`(${ratingCount})`;
+      console.log(`⭐ Rating: ${avgRating.toFixed(1)} from ${ratingCount} ratings`);
+      currentUser.totalEarnings=earn;
+      currentUser.totalTrips=tripCount;
+      localStorage.setItem("floot_driver_session", JSON.stringify({...currentUser, totalEarnings:earn, totalTrips:tripCount}));
+      console.log("💰 Earnings updated from Firebase:", earn);
+    }
+  });
+}
+
+function startListener(driverId){
+  startDriverEarningsListener(driverId);
+  const q=query(collection(db,"delivery_requests"), orderBy("createdAt","desc"), limit(80));
+  onSnapshot(q, async snap=>{
+    document.getElementById("conn").textContent=`Online (${snap.size})`;
+    allData=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const searching=allData.filter(d=>d.status==="searching"&&!d.driverId);
+    if(activeTrip){
+      const fresh=allData.find(d=>d.id===activeTrip.id);
+      if(fresh){ if(fresh.status==="delivered") closeLockedTrip(); else { activeTrip=fresh; updateLockedTripUI(fresh); updateTripMap(fresh); } }
+      renderHistory(); renderEarnings();
+      return;
+    }
+    if(currentOrder){ const still=allData.find(d=>d.id===currentOrder.id&&d.status==="searching"); if(!still) hideIncoming(); }
+    if(searching.length>0&&!currentOrder&&isOnline) showIncoming(searching[0]);
+    renderActive(driverId);
+    renderHistory();
+    renderEarnings();
+  });
+}
+
+function renderActive(driverId){
+  const mine=allData.filter(r=>r.driverId===driverId&&r.status==="accepted");
+  const box=document.getElementById("activeBox");
+  if(mine.length===0){ box.innerHTML=`<div style="text-align:center;padding:8px"><div style="font-weight:700;font-size:13px">No active trip</div><div class="small">Accept to lock trip screen</div></div>`; document.getElementById("waitingBox").style.display="block"; }
+  else { box.innerHTML=mine.map(r=>`<div style="background:linear-gradient(135deg,#D1FAE5,#ECFDF5);border:1px solid #A7F3D0;border-radius:16px;padding:12px;cursor:pointer" onclick="openLockedTripById('${r.id}')"><div style="display:flex;justify-content:space-between"><span style="font-size:9px;font-weight:900;padding:4px 10px;border-radius:999px;background:#065F46;color:#fff">🔒 ACTIVE • TAP TO OPEN MAP</span><span style="font-weight:800;color:#065F46">₦${(r.offerAmount||0).toLocaleString()}</span></div><div style="margin-top:8px;font-weight:800">${r.pickup} → ${r.dropoff}</div><div class="small">${r.distance}km • OTP: •••• (ask customer) • ${r.customerName||""}</div></div>`).join(""); document.getElementById("waitingBox").style.display="none"; if(!activeTrip) openLockedTrip(mine[0]); }
+}
+
+async function showIncoming(o){
+  if(activeTrip) return;
+  currentOrder=o;
+  document.getElementById("inTitle").textContent=o.pickup+" → "+o.dropoff;
+  document.getElementById("inPickup").textContent=o.pickup;
+  document.getElementById("inDropoff").textContent=o.dropoff;
+  document.getElementById("inDistance").textContent=(o.distance||0)+" km • Real distance";
+  document.getElementById("inOffer").textContent="₦"+(o.offerAmount||0).toLocaleString();
+  document.getElementById("inOffer2").textContent="₦"+(o.offerAmount||0).toLocaleString();
+  document.getElementById("inItem").textContent=(o.itemType||"Parcel");
+  document.getElementById("inDesc").textContent=o.description||"Customer added parcel photo";
+  document.getElementById("inOtpBadge").textContent="OTP: "+o.otp;
+  const parcelImg=document.getElementById("inParcelImg");
+  if(o.parcelPhoto){ parcelImg.src=o.parcelPhoto; parcelImg.style.display="block"; } else parcelImg.style.display="none";
+
+  document.getElementById("incoming").classList.add("show");
+  sec=25; document.getElementById("countdown").textContent=sec+"s";
+  if(timer) clearInterval(timer);
+  timer=setInterval(()=>{ sec--; document.getElementById("countdown").textContent=sec+"s"; if(sec<=0) hideIncoming(); },1000);
+
+  // Sound + Vibration like Bolt
+  const sound=document.getElementById("requestSound");
+  try{ sound.currentTime=0; await sound.play(); }catch{}
+  if(navigator.vibrate) navigator.vibrate([400,100,400,100,400]);
+
+  // Map for incoming
+  setTimeout(async()=>{
+    initIncomingMap();
+    const p1=await geocode(o.pickup);
+    const p2=await geocode(o.dropoff);
+    if(!incomingMap) return;
+    incomingMap.eachLayer(l=>{ if(l instanceof L.Marker || l instanceof L.Polyline) incomingMap.removeLayer(l); });
+    if(p1&&p2){
+      document.getElementById("inPickupAddr").textContent=p1.display.slice(0,60);
+      document.getElementById("inDropoffAddr").textContent=p2.display.slice(0,60);
+      const pickupM=L.marker([p1.lat,p1.lng],{icon:L.divIcon({html:'<div style="width:12px;height:12px;background:#10B981;border:3px solid #fff;border-radius:50%"></div>'})}).addTo(incomingMap);
+      const dropM=L.marker([p2.lat,p2.lng],{icon:L.divIcon({html:'<div style="width:12px;height:12px;background:#7C3AED;border:3px solid #fff;border-radius:50%"></div>'})}).addTo(incomingMap);
+      const route=await getRoute(p1,p2);
+      if(route){ L.polyline(route.coords,{color:'#7C3AED',weight:4,opacity:.7,dashArray:'8,8'}).addTo(incomingMap); incomingMap.fitBounds(L.latLngBounds([ [p1.lat,p1.lng], [p2.lat,p2.lng] ]),{padding:[30,30]}); document.getElementById("inDistance").textContent=`${route.distance.toFixed(1)} km • Real • ~${Math.round(route.duration)} min`; }
+      else { incomingMap.fitBounds(L.latLngBounds([ [p1.lat,p1.lng], [p2.lat,p2.lng] ]),{padding:[30,30]}); }
+    }
+  }, 400);
+}
+function hideIncoming(){
+  document.getElementById("incoming").classList.remove("show");
+  if(timer) clearInterval(timer);
+  currentOrder=null;
+  const sound=document.getElementById("requestSound");
+  sound.pause(); sound.currentTime=0;
+}
+document.getElementById("declineBtn").onclick=hideIncoming;
+document.getElementById("onlinePill").onclick=function(){
+  if(activeTrip){ alert("🔒 Cannot offline during trip"); return; }
+  const sw=document.getElementById("onlineSwitch");
+  sw.classList.toggle("on"); isOnline=sw.classList.contains("on");
+  document.getElementById("onlineText").textContent=isOnline?"ONLINE":"OFFLINE";
+  document.getElementById("conn").textContent=isOnline?"Online":"Offline";
+  if(!isOnline) hideIncoming();
+};
+document.getElementById("testSoundBtn").onclick=async()=>{ const s=document.getElementById("requestSound"); try{ s.currentTime=0; await s.play(); setTimeout(()=>{ s.pause(); s.currentTime=0; }, 2000); if(navigator.vibrate) navigator.vibrate([300,100,300]); }catch{} };
+document.getElementById("acceptBtn").onclick=async()=>{
+  if(!currentOrder||!currentUser) return;
+  document.getElementById("acceptBtn").textContent="CLAIMING...";
+  try{ await updateDoc(doc(db,"delivery_requests",currentOrder.id), {status:"accepted", driverId:currentUser.id, driverName:currentUser.name}); localStorage.setItem("floot_active_trip_id", currentOrder.id); hideIncoming(); setTimeout(()=>openLockedTrip(currentOrder), 400); }catch(e){ alert("Taken: "+e.message); hideIncoming(); }
+  document.getElementById("acceptBtn").innerHTML=`ACCEPT • <span id="inOffer2">₦${(currentOrder?.offerAmount||0).toLocaleString()}</span>`;
+};
+document.getElementById("centerMeBtn").onclick=()=>{ if(driverMap) driverMap.setView([userLat,userLng],16); };
+
+window.openLockedTripById=async(id)=>{ const o=allData.find(x=>x.id===id); if(o) openLockedTrip(o); else { const snap=await getDoc(doc(db,"delivery_requests",id)); if(snap.exists()) openLockedTrip({id:snap.id,...snap.data()}); } };
+
+function openLockedTrip(order){
+  activeTrip=order;
+  localStorage.setItem("floot_active_trip_id", order.id);
+  document.getElementById("tripLocked").classList.add("active");
+  setTimeout(()=>{ initTripMap(); updateLockedTripUI(order); updateTripMap(order); }, 300);
+}
+function updateLockedTripUI(order){
+  document.getElementById("tripHeaderTitle").textContent=order.pickup+" → "+order.dropoff;
+  document.getElementById("tripPickup").textContent=order.pickup;
+  document.getElementById("tripDropoff").textContent=order.dropoff;
+  document.getElementById("tripCustName").textContent=order.customerName||"Customer";
+  // Show customer phone as tappable number
+  const phoneEl=document.getElementById("tripCustPhone");
+  phoneEl.textContent=order.customerPhone||"No phone";
+  phoneEl.style.cursor="pointer";
+  phoneEl.onclick=()=>{ if(order.customerPhone){ window.location.href="tel:"+order.customerPhone; } };
+  document.getElementById("tripItem").textContent=(order.itemType||"Parcel")+" • Tap number to call";
+  document.getElementById("tripFare").textContent="₦"+(order.offerAmount||0).toLocaleString();
+  document.getElementById("tripDistance").textContent=(order.distance||0)+" km • Real route";
+  document.getElementById("tripCallBtn").onclick=()=>{ 
+    if(!order.customerPhone) return;
+    // Project customer's number - show then call
+    if(confirm(`Call customer?\n\n${order.customerName||"Customer"}\n${order.customerPhone}\n\nCall now?`)){
+      window.location.href="tel:"+order.customerPhone;
+    }
+  };
+  document.getElementById("goPickupBtn").onclick=()=> window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.pickup)}`, "_blank");
+  document.getElementById("goDropoffBtn").onclick=()=> window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.dropoff)}`, "_blank");
+  // Manage phases based on status
+  const isPicked = order.status==="picked_up" || order.status==="in_transit";
+  const isTransit = order.status==="in_transit";
+  if(!isPicked){
+    document.getElementById("pickupPhase").style.display="block";
+    document.getElementById("dropoffPhase").style.display="none";
+    document.getElementById("otpPhase").style.display="none";
+  } else if(isPicked && !isTransit){
+    document.getElementById("pickupPhase").style.display="none";
+    document.getElementById("dropoffPhase").style.display="block";
+    document.getElementById("otpPhase").style.display="none";
+  } else {
+    document.getElementById("pickupPhase").style.display="none";
+    document.getElementById("dropoffPhase").style.display="none";
+    document.getElementById("otpPhase").style.display="block";
+  }
+
+  const img=document.getElementById("tripParcelImg");
+  const noImg=document.getElementById("tripParcelNoImg");
+  if(order.parcelPhoto){ img.src=order.parcelPhoto; img.style.display="block"; noImg.style.display="none"; } else { img.style.display="none"; noImg.style.display="grid"; }
+  const av=document.getElementById("tripCustAv");
+  if(order.customerProfilePic) av.innerHTML=`<img src="${order.customerProfilePic}" style="width:100%;height:100%;object-fit:cover">`; else av.textContent=(order.customerName||"C").charAt(0).toUpperCase();
+}
+async function updateTripMap(order){
+  if(!tripMap) return;
+  tripMap.eachLayer(l=>{ if(l instanceof L.Marker || l instanceof L.Polyline) { try{ tripMap.removeLayer(l); }catch{} } });
+  // Keep tile layer
+  if(tripMap._layers){
+    // clear markers polylines only handled above
+  }
+  const p1=await geocode(order.pickup);
+  const p2=await geocode(order.dropoff);
+  if(!p1||!p2) return;
+  document.getElementById("tripPickupFull").textContent=p1.display.slice(0,70);
+  document.getElementById("tripDropoffFull").textContent=p2.display.slice(0,70);
+  const driverM=L.marker([userLat,userLng],{icon:L.divIcon({html:'<div style="width:18px;height:18px;background:#7C3AED;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div>'})}).addTo(tripMap);
+  const pickupM=L.marker([p1.lat,p1.lng],{icon:L.divIcon({html:'<div style="background:#10B981;color:#fff;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.2)">PICKUP</div>'})}).addTo(tripMap);
+  const dropM=L.marker([p2.lat,p2.lng],{icon:L.divIcon({html:'<div style="background:#7C3AED;color:#fff;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.2)">DROP</div>'})}).addTo(tripMap);
+  const route=await getRoute(p1,p2);
+  if(route){
+    L.polyline(route.coords,{color:'#7C3AED',weight:5,opacity:.8}).addTo(tripMap);
+    tripMap.fitBounds(L.latLngBounds([ [p1.lat,p1.lng], [p2.lat,p2.lng], [userLat,userLng] ]),{padding:[40,40]});
+    document.getElementById("tripDistance").textContent=`${route.distance.toFixed(1)} km • Real • ~${Math.round(route.duration)} min • OSRM`;
+  } else {
+    tripMap.fitBounds(L.latLngBounds([ [p1.lat,p1.lng], [p2.lat,p2.lng] ]),{padding:[40,40]});
+  }
+}
+// PICKED UP button - driver confirms parcel collected
+document.getElementById("pickedUpBtn").onclick=async()=>{
+  if(!activeTrip) return;
+  const btn=document.getElementById("pickedUpBtn");
+  btn.textContent="Updating...";
+  try{
+    await updateDoc(doc(db,"delivery_requests",activeTrip.id), {status:"picked_up", pickedAt: new Date().toISOString()});
+    document.getElementById("pickupPhase").style.display="none";
+    document.getElementById("dropoffPhase").style.display="block";
+    const dropDot=document.getElementById("dropDot");
+    if(dropDot){ dropDot.style.background="#7C3AED"; dropDot.style.animation="pulse 2s infinite"; }
+  }catch(e){ alert(e.message); btn.innerHTML='<i class="fa-solid fa-box"></i> PICKED UP • Item collected'; }
+};
+
+// START TRIP button
+document.getElementById("startTripBtn").onclick=async()=>{
+  if(!activeTrip) return;
+  const btn=document.getElementById("startTripBtn");
+  btn.textContent="Starting trip...";
+  try{
+    await updateDoc(doc(db,"delivery_requests",activeTrip.id), {status:"in_transit", startedAt: new Date().toISOString()});
+    document.getElementById("dropoffPhase").style.display="none";
+    document.getElementById("otpPhase").style.display="block";
+  }catch(e){ alert(e.message); btn.innerHTML='<i class="fa-solid fa-route"></i> START TRIP TO DROPOFF'; }
+};
+
+async function cancelTrip(){
+  if(!activeTrip) return;
+  if(!confirm(`Cancel this trip?\n\n${activeTrip.pickup} → ${activeTrip.dropoff}\n\nCustomer will be notified and order returns to searching.`)) return;
+  try{
+    await updateDoc(doc(db,"delivery_requests",activeTrip.id), {status:"searching", driverId:null, driverName:null, pickedAt:null, startedAt:null, cancelledBy:"driver", cancelledAt: new Date().toISOString()});
+    closeLockedTrip();
+    alert("Trip cancelled • Order returned to searching");
+  }catch(e){ alert("Cancel failed: "+e.message); }
+}
+document.getElementById("cancelTripBtn1").onclick=cancelTrip;
+document.getElementById("cancelTripBtn2").onclick=cancelTrip;
+document.getElementById("cancelTripBtn3").onclick=cancelTrip;
+
+function closeLockedTrip(){
+  activeTrip=null;
+  localStorage.removeItem("floot_active_trip_id");
+  document.getElementById("tripLocked").classList.remove("active");
+  document.getElementById("tripOtpInput").value="";
+  document.getElementById("tripVerifyMsg").textContent="";
+}
+document.getElementById("tripVerifyBtn").onclick=async()=>{
+  const entered=document.getElementById("tripOtpInput").value.trim();
+  const msg=document.getElementById("tripVerifyMsg");
+  if(entered.length!==4){ msg.style.color="#DC2626"; msg.textContent="❌ Enter 4-digit OTP"; return; }
+  if(!currentUser||!activeTrip){ msg.style.color="#DC2626"; msg.textContent="No trip"; return; }
+  msg.style.color="#8B8BA7"; msg.textContent="Verifying...";
+  try{
+    const fresh=await getDoc(doc(db,"delivery_requests",activeTrip.id));
+    if(!fresh.exists()){ msg.style.color="#DC2626"; msg.textContent="Not found"; return; }
+    const fd=fresh.data();
+    if(String(fd.otp).trim()!==String(entered).trim()){ msg.style.color="#DC2626"; msg.textContent=`❌ Wrong OTP "${entered}". Correct is ${fd.otp}`; return; }
+    await updateDoc(doc(db,"delivery_requests",activeTrip.id), {status:"delivered", deliveredAt:new Date().toISOString()});
+    const ref=doc(db,"drivers",currentUser.id);
+    // FIX: Force fresh fetch of driver data
+    const snap=await getDoc(ref);
+    const d=snap.data()||{};
+    const currentEarn=Number(d.totalEarnings||0);
+    const currentTrips=Number(d.totalTrips||0);
+    const fare=Number(fd.offerAmount||0);
+    const newEarn=currentEarn+fare;
+    const newTrips=currentTrips+1;
+    console.log(`💰 Earnings calc: ${currentEarn} + ${fare} = ${newEarn}`);
+    // Update Firebase driver earnings
+    await updateDoc(ref,{totalEarnings:newEarn,totalTrips:newTrips, lastEarningAt: new Date().toISOString(), lastFare: fare});
+    // Update UI instantly
+    currentUser.totalEarnings=newEarn;
+    currentUser.totalTrips=newTrips;
+    localStorage.setItem("floot_driver_session",JSON.stringify(currentUser));
+    document.getElementById("earnings").textContent="₦"+newEarn.toLocaleString();
+    document.getElementById("earnTotal").textContent="₦"+newEarn.toLocaleString();
+    document.getElementById("trips").textContent=newTrips;
+    document.getElementById("earnTrips").textContent=newTrips+" trips completed";
+    document.getElementById("earnToday").textContent="₦"+newEarn.toLocaleString();
+    msg.style.color="#065F46"; 
+    msg.textContent=`✓ Delivered +₦${fare.toLocaleString()} • Earnings: ₦${newEarn.toLocaleString()} • Unlocking...`;
+    // Also update earnings view list
+    renderEarnings();
+    setTimeout(()=>{ closeLockedTrip(); alert(`✓ Delivered!\n\nFare: ₦${fare.toLocaleString()}\nTotal Earnings: ₦${newEarn.toLocaleString()}\nTrips: ${newTrips}`); }, 900);
+  }catch(e){ msg.style.color="#DC2626"; msg.textContent=e.message; }
+};
+document.getElementById("tripCenterBtn").onclick=()=>{ if(tripMap) tripMap.setView([userLat,userLng],15); };
+
+// Nav switching Bolt style
+document.querySelectorAll(".nav-item").forEach(item=>{
+  item.onclick=()=>{
+    if(activeTrip){ alert("🔒 Complete trip first"); return; }
+    document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
+    item.classList.add("active");
+    const view=item.dataset.view;
+    document.getElementById("homeView").style.display= view==="home"?"block":"none";
+    document.getElementById("bottomSheet").style.display= view==="home"?"block":"none";
+    document.getElementById("driverMap").style.display= view==="home"?"block":"none";
+    document.getElementById("historyView").style.display= view==="history"?"block":"none";
+    document.getElementById("earningsView").style.display= view==="earnings"?"block":"none";
+    if(view==="home"&&driverMap) setTimeout(()=>driverMap.invalidateSize(), 200);
+  };
+});
+
+function renderHistory(){
+  const box=document.getElementById("historyBox");
+  const mine=allData.filter(r=>r.driverId===currentUser?.id && r.status==="delivered").sort((a,b)=> new Date(b.deliveredAt||b.createdAt)-new Date(a.deliveredAt||a.createdAt));
+  if(mine.length===0){ box.innerHTML='<div class="small">No delivered trips yet</div>'; return; }
+  box.innerHTML=mine.map(r=>`<div class="history-item"><div style="width:40px;height:40px;border-radius:10px;background:#ECFDF5;display:grid;place-items:center;color:#10B981"><i class="fa-solid fa-check"></i></div><div style="flex:1"><div style="font-weight:700;font-size:13px">${r.pickup} → ${r.dropoff}</div><div class="small">${new Date(r.deliveredAt||r.createdAt).toLocaleString()} • ${r.distance}km • ${r.customerName||""}</div><div style="margin-top:4px;display:flex;gap:6px;align-items:center">${r.rating?`<span style="background:#FFFBEB;border:1px solid #FDE68A;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;color:#92400E">★ ${r.rating}/5 rider rating</span><span class="small">${r.ratingComment||""}</span>`:`<span style="background:#F5F3FF;padding:2px 8px;border-radius:999px;font-size:10px;color:#8B8BA7">Waiting for rider rating</span>`}</div></div><div style="text-align:right"><div style="font-weight:900;color:#7C3AED">₦${(r.offerAmount||0).toLocaleString()}</div><div class="small">${r.itemType||"Parcel"}</div></div></div>`).join("");
+}
+function renderEarnings(){
+  const mine=allData.filter(r=>r.driverId===currentUser?.id && r.status==="delivered");
+  const today=new Date().toDateString();
+  const todayEarn=mine.filter(r=> new Date(r.deliveredAt||r.createdAt).toDateString()===today).reduce((s,r)=>s+(r.offerAmount||0),0);
+  document.getElementById("earnToday").textContent="₦"+todayEarn.toLocaleString();
+  document.getElementById("earnList").innerHTML=mine.slice(0,20).map(r=>`<div class="card" style="display:flex;justify-content:space-between"><span class="small">${r.pickup.slice(0,18)} → ${r.dropoff.slice(0,18)} • ${new Date(r.deliveredAt||r.createdAt).toLocaleDateString()}</span><b>₦${(r.offerAmount||0).toLocaleString()}</b></div>`).join("");
+}
+
+window.addEventListener("popstate", ()=>{ if(activeTrip){ history.pushState(null,"",location.href); document.getElementById("tripLocked").classList.add("active"); } });
+history.pushState(null,"",location.href);
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
