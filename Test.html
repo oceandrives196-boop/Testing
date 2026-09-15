@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Floot NG Customer • Auto Delivery NGN200/km + Pool Rider Fare</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--purple:#7C3AED;--purple2:#A78BFA;--purple3:#EDE9FE;--white:#FFFFFF;--gray:#F5F3FF;--text:#1F1A2E;--muted:#6B7280}
+body{background:var(--white);color:var(--text);font-family:Inter,system-ui,sans-serif;min-height:100vh}
+.app{max-width:420px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#FFFFFF 0%, #FAF7FF 100%);position:relative;display:flex;flex-direction:column}
+.auth-bg{background:linear-gradient(180deg,#7C3AED 0%, #5B21B6 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:fixed;inset:0;z-index:10000;overflow:auto}
+.auth-card{width:100%;max-width:380px;background:#fff;border-radius:28px;padding:28px;box-shadow:0 20px 60px rgba(92,33,182,.25)}
+.logo-big{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#7C3AED,#A78BFA);display:grid;place-items:center;margin:0 auto 14px;color:#fff;font-size:28px}
+.input{width:100%;background:#F5F3FF;border:1.5px solid #EDE9FE;border-radius:14px;padding:14px 14px 14px 42px;font-size:13px;outline:none;color:var(--text);font-weight:600;margin-bottom:10px}
+.input:focus{border-color:var(--purple);background:#fff;box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.input-wrap{position:relative;margin-bottom:2px}
+.input-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--purple2);font-size:14px}
+.btn{width:100%;border:none;border-radius:14px;padding:14px;font-weight:800;font-size:13px;cursor:pointer;transition:.2s}
+.btn-primary{background:linear-gradient(90deg,#7C3AED,#8B5CF6);color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.25)}
+.btn-ghost{background:#F5F3FF;color:var(--purple);border:1.5px solid #EDE9FE}
+.tabs{display:flex;background:#F5F3FF;border-radius:12px;padding:4px;margin-bottom:16px;border:1px solid #EDE9FE}
+.tab{flex:1;padding:10px;border-radius:10px;text-align:center;font-weight:800;font-size:12px;cursor:pointer;color:var(--muted)}
+.tab.active{background:#7C3AED;color:#fff;box-shadow:0 4px 12px rgba(124,58,237,.25)}
+.small{font-size:11px;color:var(--muted);font-weight:600;line-height:1.5}
+.header{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;background:#fff;border-bottom:1px solid #F3F0FF;position:sticky;top:0;z-index:10}
+.avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#A78BFA);display:grid;place-items:center;color:#fff;font-weight:900;overflow:hidden}
+.main{padding:16px;display:flex;flex-direction:column;gap:16px;flex:1;background:#FBFAFF}
+.card{background:#fff;border:1.5px solid #F3F0FF;border-radius:20px;padding:16px;box-shadow:0 4px 20px rgba(124,58,237,.06)}
+.label{font-size:10px;font-weight:800;letter-spacing:.12em;color:#8B8BA7;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.order{background:#FAF7FF;border:1px solid #EDE9FE;border-radius:16px;padding:14px}
+.picBox{width:90px;height:90px;border-radius:50%;background:#F5F3FF;border:2px dashed #DDD6FE;display:grid;place-items:center;overflow:hidden;cursor:pointer;position:relative;margin:0 auto}
+.picBox img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0}
+.parcelBox{width:100%;height:160px;border-radius:16px;background:#F5F3FF;border:2px dashed #DDD6FE;display:grid;place-items:center;overflow:hidden;cursor:pointer;position:relative}
+.parcelBox img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0}
+.mode-switch{display:flex;background:#F5F3FF;border-radius:14px;padding:4px;margin:0 16px 12px;border:1.5px solid #EDE9FE}
+.mode-btn{flex:1;padding:12px;border-radius:10px;text-align:center;font-weight:800;font-size:12px;cursor:pointer;border:none;background:transparent;color:#8B8BA7;display:flex;align-items:center;justify-content:center;gap:6px}
+.mode-btn.active{background:#fff;color:#7C3AED;box-shadow:0 4px 12px rgba(0,0,0,.06);border:1px solid #EDE9FE}
+.map-wrap{position:relative;border-radius:18px;overflow:hidden;border:1.5px solid #EDE9FE;margin-top:10px;background:#F5F3FF}
+#deliveryMap{height:220px;z-index:1}
+#poolMap{height:240px;z-index:1}
+#osmMap{width:100%;height:100%;background:#F5F3FF;z-index:1}
+.suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1.5px solid #EDE9FE;border-radius:14px;max-height:180px;overflow:auto;z-index:100;box-shadow:0 16px 40px rgba(124,58,237,.15);display:none}
+.suggest div{padding:10px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid #F8F5FF;display:flex;gap:8px}
+.suggest div:hover{background:#FAF7FF}
+.pool-card{background:#fff;border:1.5px solid #EDE9FE;border-radius:16px;padding:14px;margin-bottom:10px}
+.pool-card.live{border-color:#7C3AED;background:#FAF7FF;box-shadow:0 4px 16px rgba(124,58,237,.08)}
+.compass-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;text-align:center}
+.arrow-circle{width:110px;height:110px;border-radius:50%;background:rgba(124,58,237,.12);border:3px solid #7C3AED;display:grid;place-items:center;margin:0 auto;box-shadow:0 8px 30px rgba(124,58,237,.25)}
+.arrow{font-size:42px;color:#7C3AED;transition:transform.3s ease}
+@keyframes pulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fareBox{background:linear-gradient(135deg,#7C3AED,#8B5CF6);border-radius:16px;padding:14px;margin-top:10px;color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.25)}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth-bg">
+  <div style="text-align:center;color:#fff;margin-bottom:20px">
+    <div class="logo-big"><i class="fa-solid fa-box"></i></div>
+    <div style="font-weight:900;font-size:22px">FLOOT NG</div>
+    <div style="opacity:.8;font-size:13px;margin-top:4px">Delivery NGN200/km Auto • Pool Cars/Jeeps/Sedans</div>
+    <div style="margin-top:8px;display:flex;gap:6px;justify-content:center"><span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800">Delivery: NGN200/km Auto</span><span style="background:#fff;color:#7C3AED;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800">Pool: Rider Fare</span></div>
+  </div>
+  <div class="auth-card">
+    <div class="tabs"><div id="loginTab" class="tab active">Login</div><div id="regTab" class="tab">Register</div></div>
+    <div id="loginForm">
+      <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input id="loginEmail" class="input" type="email" placeholder="Email"></div>
+      <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="loginPass" class="input" type="password" placeholder="Password"></div>
+      <button id="loginBtn" class="btn btn-primary" style="margin-top:6px">LOGIN TO FLOOT</button>
+      <div id="loginMsg" class="small" style="text-align:center;margin-top:10px;min-height:16px"></div>
+    </div>
+    <div id="regForm" style="display:none">
+      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px">
+        <label for="picFile" id="picLabel" class="picBox">
+          <div id="picPlace" style="text-align:center"><div style="width:32px;height:32px;border-radius:50%;background:#EDE9FE;display:grid;place-items:center;margin:0 auto;color:#7C3AED"><i class="fa-solid fa-camera"></i></div><div style="font-size:10px;font-weight:800;color:#7C3AED;margin-top:4px">Add Photo *</div></div>
+          <img id="picImg">
+          <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#7C3AED;border:2px solid #fff;display:grid;place-items:center;color:#fff;font-size:11px;z-index:2"><i class="fa-solid fa-camera"></i></div>
+        </label>
+        <input id="picFile" type="file" accept="image/*" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px">
+        <button id="picChooseBtn" type="button" style="margin-top:8px;background:#7C3AED;color:#fff;border:none;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800">CHOOSE PHOTO *</button>
+        <div id="picErr" style="font-size:11px;color:#EF4444;font-weight:700;margin-top:4px;display:none">❌ Profile picture mandatory</div>
+        <div id="picOk" style="font-size:11px;color:#10B981;font-weight:700;margin-top:4px;display:none">✓ Photo added</div>
+      </div>
+      <div class="input-wrap"><i class="fa-solid fa-user"></i><input id="regName" class="input" placeholder="Full Name *"></div>
+      <div class="input-wrap"><i class="fa-solid fa-phone"></i><input id="regPhone" class="input" placeholder="Phone (080...) *"></div>
+      <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input id="regEmail" class="input" type="email" placeholder="Email *"></div>
+      <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="regPass" class="input" type="password" placeholder="Password (min 6) *"></div>
+      <button id="regBtn" class="btn btn-primary" style="margin-top:6px">CREATE ACCOUNT</button>
+      <div id="regMsg" class="small" style="text-align:center;margin-top:10px;min-height:16px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="mainApp" style="display:none">
+  <div class="header">
+    <div style="display:flex;gap:10px;align-items:center"><div class="avatar" id="avatar">C</div><div><div style="font-weight:800;font-size:14px" id="custName">Customer</div><div class="small"><span id="custEmail">...</span> • <span style="color:#10B981">● Online</span></div></div></div>
+    <button id="logoutBtn" style="width:32px;height:32px;border-radius:10px;border:1px solid #F3F0FF;background:#fff;color:#6B7280"><i class="fa-solid fa-right-from-bracket"></i></button>
+  </div>
+
+  <div class="mode-switch">
+    <button class="mode-btn active" id="modeDelivery"><i class="fa-solid fa-box"></i> Delivery <span style="background:#ECFDF5;color:#065F46;padding:2px 6px;border-radius:999px;font-size:8px">NGN200/km Auto</span></button>
+    <button class="mode-btn" id="modePool"><i class="fa-solid fa-car-side"></i> Car Pool <span style="background:#7C3AED;color:#fff;padding:2px 6px;border-radius:999px;font-size:8px">Cars/Jeeps/Sedans</span></button>
+  </div>
+
+  <div id="deliveryView" class="main">
+    <div class="card">
+      <div class="label"><span> SEND A PARCEL • Auto Price NGN200/km • Runners & Bikers</span><span style="background:#10B981;color:#fff;padding:3px 8px;border-radius:999px;font-size:9px">Auto Price Fixed</span></div>
+      <div class="small" style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;padding:8px;margin-bottom:10px;color:#065F46">
+        <b>✓ Updated:</b> Price auto calculated NGN200 per km. No offer input needed. Type pickup & dropoff → select dropdown → map shows route → price auto.
+      </div>
+
+      <div class="input-wrap" style="z-index:30"><i class="fa-solid fa-location-dot" style="color:#10B981"></i><input id="deliveryPickup" class="input" placeholder="Pickup - e.g. Ketu, Lagos (type & select)" autocomplete="off"><div id="deliveryPickSuggest" class="suggest"></div></div>
+      <div class="input-wrap" style="z-index:20"><i class="fa-solid fa-flag-checkered" style="color:#EF4444"></i><input id="deliveryDropoff" class="input" placeholder="Dropoff - e.g. Lekki, Lagos (type & select)" autocomplete="off"><div id="deliveryDropSuggest" class="suggest"></div></div>
+
+      <div class="map-wrap"><div id="deliveryMap"></div>
+        <div style="position:absolute;top:10px;left:10px;z-index:400;background:#fff;border:1px solid #EDE9FE;border-radius:999px;padding:5px 10px;font-size:10px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.08)">📦 Delivery • OSM Free • NGN200/km</div>
+        <div id="deliveryDistancePill" style="position:absolute;bottom:10px;left:10px;z-index:400;background:linear-gradient(90deg,#10B981,#059669);color:#fff;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:900;display:none"></div>
+      </div>
+
+      <div id="deliveryFareBox" style="display:none;background:linear-gradient(135deg,#10B981,#059669);border-radius:16px;padding:14px;margin-top:10px;color:#fff;box-shadow:0 8px 20px rgba(16,185,129,.3)">
+        <div style="display:flex;justify-content:space-between"><span style="font-size:10px;opacity:.8;font-weight:800;letter-spacing:.1em">DELIVERY FARE • AUTO NGN200/KM</span><span id="deliveryKm" style="font-weight:900">0 km</span></div>
+        <div style="margin-top:8px;background:rgba(255,255,255,.15);border-radius:10px;padding:10px">
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="opacity:.8">Distance</span><span id="deliveryKmCalc" style="font-weight:800">0 km</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px"><span style="opacity:.8">Rate</span><span style="font-weight:800">NGN200 / km</span></div>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.2);display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;font-size:12px">Auto Delivery Price</span><span id="deliveryPrice" style="font-weight:900;font-size:22px">₦0</span></div>
+        <div class="small" style="color:rgba(255,255,255,.85);margin-top:4px">No offer input - price auto from distance. Short trip cheaper.</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+        <div class="input-wrap"><i class="fa-solid fa-box"></i><input id="itemType" class="input" placeholder="Item (Food, Docs)"></div>
+        <div class="input-wrap"><i class="fa-solid fa-weight-hanging"></i><input id="itemWeight" class="input" placeholder="Weight (optional)"></div>
+      </div>
+      <div class="input-wrap"><i class="fa-solid fa-pen"></i><input id="desc" class="input" placeholder="Description (optional)"></div>
+
+      <div style="margin-top:12px">
+        <div class="label">PARCEL PHOTO * (Driver will see this)</div>
+        <label for="parcelFile" id="parcelLabel" class="parcelBox">
+          <div id="parcelPlace" style="text-align:center"><div style="width:48px;height:48px;border-radius:14px;background:#EDE9FE;display:grid;place-items:center;margin:0 auto;color:#7C3AED;font-size:20px"><i class="fa-solid fa-camera"></i></div><div style="font-weight:800;font-size:12px;color:#7C3AED;margin-top:6px">Tap to add parcel photo *</div><div class="small" style="margin-top:2px">Take clear photo of parcel</div></div>
+          <img id="parcelImg">
+        </label>
+        <input id="parcelFile" type="file" accept="image/*" capture="environment" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px">
+        <button id="parcelChooseBtn" type="button" style="margin-top:8px;background:#F5F3FF;border:1px solid #EDE9FE;color:#7C3AED;padding:8px 14px;border-radius:999px;font-size:11px;font-weight:800"><i class="fa-solid fa-upload"></i> CHOOSE PARCEL PHOTO</button>
+        <div id="parcelErr" style="font-size:11px;color:#EF4444;font-weight:700;margin-top:4px;display:none">❌ Parcel photo required</div>
+        <div id="parcelOk" style="font-size:11px;color:#10B981;font-weight:700;margin-top:4px;display:none">✓ Parcel photo added</div>
+      </div>
+
+      <button id="requestBtn" class="btn btn-primary" style="margin-top:14px;opacity:.4" disabled><i class="fa-solid fa-location-dot"></i> Select pickup & dropoff from dropdown to auto price</button>
+      <div id="requestMsg" class="small" style="text-align:center;margin-top:8px;min-height:16px"></div>
+    </div>
+
+    <div class="card">
+      <div class="label">MY DELIVERY ORDERS • Auto NGN200/km</div>
+      <div id="ordersBox"><div class="small">No orders yet. Select addresses above to auto calculate price.</div></div>
+    </div>
+  </div>
+
+  <div id="poolView" class="main" style="display:none">
+    <div class="card">
+      <div class="label"><span> 🚗 CAR POOL • Improved • Only Cars, Jeeps, Sedans • Rider-based Fare</span><span style="background:#7C3AED;color:#fff;padding:3px 8px;border-radius:999px;font-size:8px">Premium Map • Better</span></div>
+      <div class="small" style="background:#F5F3FF;border:1px solid #EDE9FE;border-radius:10px;padding:10px;margin-bottom:10px">
+        <b style="color:#7C3AED">Pool Improved:</b> Only <b>Cars, Jeeps, Sedans</b> (no bikes).<br>
+        Your fare = your own pickup→dropoff km × ₦60 + ₦500. Short = cheaper, long = more. Amount sent to driver. Driver can cancel particular rider. Premium map with route.
+      </div>
+
+      <div class="input-wrap" style="z-index:30">
+        <i class="fa-solid fa-circle-dot" style="color:#10B981"></i>
+        <input id="poolPickup" class="input" placeholder="Your Pickup - e.g. Yaba, Sabo (type & select)" autocomplete="off">
+        <div id="poolPickSuggest" class="suggest"></div>
+      </div>
+      <div class="input-wrap" style="z-index:20">
+        <i class="fa-solid fa-location-dot" style="color:#EF4444"></i>
+        <input id="poolDropoff" class="input" placeholder="Your Dropoff - e.g. Ikorodu Garage (type & select)" autocomplete="off">
+        <div id="poolDropSuggest" class="suggest"></div>
+      </div>
+
+      <div class="map-wrap"><div id="poolMap"></div>
+        <div style="position:absolute;top:10px;left:10px;z-index:400;background:#fff;border:1px solid #EDE9FE;border-radius:999px;padding:5px 10px;font-size:10px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.08)">🚗 Cars/Jeeps/Sedans Only • Rider Fare</div>
+        <div id="poolDistancePill" style="position:absolute;bottom:10px;left:10px;z-index:400;background:linear-gradient(90deg,#7C3AED,#8B5CF6);color:#fff;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:900;display:none"></div>
+        <button id="poolMyLocBtn" style="position:absolute;bottom:10px;right:10px;z-index:400;background:#7C3AED;color:#fff;border:none;border-radius:10px;width:36px;height:36px;display:grid;place-items:center;box-shadow:0 4px 12px rgba(124,58,237,.3)"><i class="fa-solid fa-crosshairs"></i></button>
+      </div>
+
+      <div id="poolFareBox" style="display:none;background:linear-gradient(135deg,#7C3AED,#8B5CF6);border-radius:16px;padding:14px;margin-top:10px;color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.3)">
+        <div style="display:flex;justify-content:space-between"><span style="font-size:10px;opacity:.8;font-weight:800;letter-spacing:.1em">YOUR POOL FARE • Rider-based • Cars Only</span><span id="poolKm" style="font-weight:900">0 km</span></div>
+        <div style="margin-top:8px;background:rgba(255,255,255,.15);border-radius:10px;padding:10px">
+          <div style="display:flex;justify-content:space-between;font-size:11px"><span style="opacity:.8">Base</span><span style="font-weight:700">₦500</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="opacity:.8">Your distance</span><span id="poolKmCalc" style="font-weight:700">0 km × ₦60</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px"><span style="opacity:.8">Vehicle</span><span style="font-weight:800">Cars, Jeeps, Sedans Only</span></div>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.2);display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;font-size:12px">Your Total Fare → Driver</span><span id="poolFare" style="font-weight:900;font-size:22px">₦0</span></div>
+        <div class="small" style="color:rgba(255,255,255,.85);margin-top:4px">Shorter than driver route = cheaper. Inside detour = a bit more. Driver can cancel if not along route.</div>
+      </div>
+
+      <button id="poolFindBtn" class="btn btn-primary" style="margin-top:10px;opacity:.4" disabled><i class="fa-solid fa-search"></i> Select pickup & dropoff from dropdown</button>
+    </div>
+
+    <div class="card">
+      <div class="label"><span>AVAILABLE POOLS • Improved • Cars/Jeeps/Sedans • Along your route</span><span id="poolCount" style="background:#7C3AED;color:#fff;padding:3px 8px;border-radius:999px;font-size:10px">0 cars</span></div>
+      <div id="poolBox"><div class="small" style="text-align:center;padding:16px;background:#FAF7FF;border:1px dashed #EDE9FE;border-radius:12px">No pools yet<br>Only Cars, Jeeps, Sedans used for pool (no bikes)<br>Driver creates at pooldriver.floot.com.ng<br>Select your pickup/dropoff above</div></div>
+    </div>
+
+    <div class="card">
+      <div class="label">MY POOL RIDES • Rider fares • Cars only</div>
+      <div id="myPoolBox"><div class="small">No pool rides yet</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="trackPage" style="position:fixed;inset:0;z-index:9998;background:#fff;display:none;flex-direction:column">
+  <div style="background:#fff;border-bottom:1px solid #F3F0FF;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:10px;align-items:center"><button id="backTrack" style="width:36px;height:36px;border-radius:10px;border:1px solid #F3F0FF;background:#F5F3FF"><i class="fa-solid fa-arrow-left" style="color:#7C3AED"></i></button><div><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#7C3AED">TRACKING</div><div id="trackTitle" style="font-weight:800;font-size:14px">Ketu → Lekki</div></div></div>
+    <div id="trackStatus" style="background:#FEF3C7;color:#92400E;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800">Searching...</div>
+  </div>
+  <div style="flex:1;position:relative;overflow:hidden">
+    <div id="osmMap"></div>
+    <div id="compassOverlay" class="compass-wrap">
+      <div class="arrow-circle"><div id="directionArrow" class="arrow"><i class="fa-solid fa-location-arrow"></i></div></div>
+      <div style="margin-top:8px;background:#1F1A2E;color:#fff;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:800"><span id="compassDist">Calculating...</span></div>
+    </div>
+    <div style="position:absolute;top:12px;left:12px;z-index:400;background:#1F1A2E;color:#fff;padding:6px 10px;border-radius:10px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;background:#10B981;border-radius:50%;animation:pulse 2s infinite"></div> Live • Auto NGN200/km</div>
+  </div>
+  <div style="background:#fff;border-top:1px solid #F3F0FF;padding:16px;border-radius:24px 24px 0 0;margin-top:-20px;position:relative;z-index:500;box-shadow:0 -8px 30px rgba(0,0,0,.06)">
+    <div id="driverInfo" style="display:none">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div id="driverAv" style="width:52px;height:52px;border-radius:14px;background:#EDE9FE;display:grid;place-items:center;overflow:hidden;font-weight:900;color:#7C3AED"><i class="fa-solid fa-motorcycle"></i></div>
+        <div style="flex:1"><div style="font-weight:800;font-size:14px" id="driverName">Driver</div><div class="small"><span id="driverPhone">080...</span> • <span id="driverVehicle">Bike</span></div><div style="margin-top:2px"><span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800">✓ Accepted • OTP inside</span></div></div>
+        <button id="callDriverBtn" style="width:44px;height:44px;border-radius:12px;background:#7C3AED;color:#fff;border:none"><i class="fa-solid fa-phone"></i></button>
+      </div>
+      <div style="margin-top:12px;background:#FAF7FF;border:1px solid #EDE9FE;border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center">
+        <img id="trackParcelImg" style="width:60px;height:60px;border-radius:10px;object-fit:cover;background:#F5F3FF">
+        <div><div class="small" style="font-weight:800">YOUR PARCEL</div><div style="font-size:12px;font-weight:700" id="trackItem">Food</div><div class="small" id="trackDesc">No description</div></div>
+        <div style="margin-left:auto;text-align:right"><div class="small">OTP</div><div id="trackOtp" style="font-size:20px;font-weight:900;letter-spacing:.2em;color:#7C3AED">----</div><div class="small">Give to driver</div></div>
+      </div>
+    </div>
+    <div id="searchingInfo">
+      <div style="text-align:center;padding:8px"><div style="width:40px;height:40px;border:3px solid #EDE9FE;border-top-color:#7C3AED;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto"></div><div style="font-weight:800;margin-top:8px">Searching for driver...</div><div class="small">Drivers nearby will accept • First to accept wins • Auto price NGN200/km</div></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, orderBy, limit, onSnapshot, doc, setDoc, getDoc, addDoc, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const firebaseConfig = { apiKey: "AIzaSyBVIJq5napb_egiLdKhGtySZoPeLUkY9Q4", authDomain: "floot-delivery.firebaseapp.com", projectId: "floot-delivery", storageBucket: "floot-delivery.firebasestorage.app", messagingSenderId: "786230599434", appId: "1:786230599434:web:e1913bd8c2e69a7e1c64f3" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let currentUser=null, allOrders=[], currentTrack=null, profilePicB64=null, parcelPicB64=null;
+let osmMap=null, deliveryMap=null, poolMap=null, driverMarker=null, customerMarker=null, routeLine=null;
+let deliveryFrom=null, deliveryTo=null, deliveryKm=0;
+let poolFrom=null, poolTo=null, poolKm=0, allPools=[], poolMarkers=[], poolRouteLine=null, poolRouteGlow=null, deliveryRouteLine=null, deliveryRouteGlow=null, deliveryMarkers=[];
+
+document.getElementById("loginTab").onclick=()=>{ document.getElementById("loginTab").classList.add("active"); document.getElementById("regTab").classList.remove("active"); document.getElementById("loginForm").style.display="block"; document.getElementById("regForm").style.display="none"; };
+document.getElementById("regTab").onclick=()=>{ document.getElementById("regTab").classList.add("active"); document.getElementById("loginTab").classList.remove("active"); document.getElementById("loginForm").style.display="none"; document.getElementById("regForm").style.display="block"; };
+
+function handleProfile(file){
+  if(!file) return;
+  const r=new FileReader(); r.onload=(ev)=>{
+    const im=new Image(); im.onload=()=>{
+      const c=document.createElement('canvas'); const max=400; let w=im.width,h=im.height;
+      if(w>h){ if(w>max){ h*=max/w; w=max; } } else { if(h>max){ w*=max/h; h=max; } }
+      c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h);
+      profilePicB64=c.toDataURL('image/jpeg',0.7);
+      document.getElementById("picImg").src=profilePicB64; document.getElementById("picImg").style.display='block';
+      document.getElementById("picPlace").style.display='none';
+      document.getElementById("picErr").style.display='none'; document.getElementById("picOk").style.display='block';
+    }; im.src=ev.target.result;
+  }; r.readAsDataURL(file);
+}
+document.getElementById("picFile").addEventListener('change',e=>handleProfile(e.target.files[0]));
+document.getElementById("picChooseBtn").onclick=()=>document.getElementById("picFile").click();
+
+function handleParcel(file){
+  if(!file) return;
+  const r=new FileReader(); r.onload=(ev)=>{
+    const im=new Image(); im.onload=()=>{
+      const c=document.createElement('canvas'); const max=600; let w=im.width,h=im.height;
+      if(w>h){ if(w>max){ h*=max/w; w=max; } } else { if(h>max){ w*=max/h; h=max; } }
+      c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h);
+      parcelPicB64=c.toDataURL('image/jpeg',0.75);
+      document.getElementById("parcelImg").src=parcelPicB64; document.getElementById("parcelImg").style.display='block';
+      document.getElementById("parcelPlace").style.display='none';
+      document.getElementById("parcelErr").style.display='none'; document.getElementById("parcelOk").style.display='block';
+    }; im.src=ev.target.result;
+  }; r.readAsDataURL(file);
+}
+document.getElementById("parcelFile").addEventListener('change',e=>handleParcel(e.target.files[0]));
+document.getElementById("parcelChooseBtn").onclick=()=>document.getElementById("parcelFile").click();
+
+const saved=JSON.parse(localStorage.getItem("floot_customer_session")||"null");
+if(saved){ loginWithProfile(saved); }
+function showMain(){ document.getElementById("authScreen").style.display="none"; document.getElementById("mainApp").style.display="flex"; setTimeout(()=>{ initMaps(); },500); }
+function loginWithProfile(profile){
+  currentUser=profile;
+  document.getElementById("custName").textContent=profile.name;
+  document.getElementById("custEmail").textContent=profile.email;
+  const av=document.getElementById("avatar");
+  if(profile.profilePic){ av.innerHTML=`<img src="${profile.profilePic}" style="width:100%;height:100%;object-fit:cover">`; } else { av.textContent=profile.name.charAt(0); }
+  showMain(); startListener(profile.id); startPoolListener();
+}
+
+document.getElementById("regBtn").onclick=async()=>{
+  const name=document.getElementById("regName").value.trim();
+  const phone=document.getElementById("regPhone").value.trim();
+  const email=document.getElementById("regEmail").value.trim().toLowerCase();
+  const pass=document.getElementById("regPass").value.trim();
+  const msg=document.getElementById("regMsg");
+  if(!profilePicB64){ document.getElementById("picErr").style.display='block'; msg.textContent="❌ Profile photo required"; return; }
+  if(!name||!phone||!email||!pass){ msg.textContent="❌ Fill all *"; return; }
+  if(pass.length<6){ msg.textContent="❌ Password min 6"; return; }
+  msg.textContent="Creating...";
+  const id=email.replace(/[^a-z0-9]/g,"_");
+  const profile={id,name,phone,email,password:pass,profilePic:profilePicB64,createdAt:new Date().toISOString()};
+  try{
+    const ex=await getDoc(doc(db,"customers",id));
+    if(ex.exists()){ msg.textContent="❌ Email exists, login"; return; }
+    await setDoc(doc(db,"customers",id),profile);
+    localStorage.setItem("floot_customer_session",JSON.stringify(profile));
+    msg.textContent="✓ Created!"; setTimeout(()=>loginWithProfile(profile),500);
+  }catch(e){ msg.textContent="❌ "+e.message; }
+};
+
+document.getElementById("loginBtn").onclick=async()=>{
+  const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+  const pass=document.getElementById("loginPass").value.trim();
+  const msg=document.getElementById("loginMsg");
+  if(!email||!pass){ msg.textContent="Enter email & pass"; return; }
+  msg.textContent="Logging in...";
+  try{
+    const id=email.replace(/[^a-z0-9]/g,"_");
+    let snap=await getDoc(doc(db,"customers",id));
+    let profile=null;
+    if(snap.exists()) profile=snap.data();
+    else{
+      const q=query(collection(db,"customers"),where("email","==",email),limit(1));
+      const qs=await getDocs(q);
+      if(!qs.empty) profile=qs.docs[0].data();
+    }
+    if(!profile){ msg.textContent="❌ No account, register"; return; }
+    if(profile.password!==pass){ msg.textContent="❌ Wrong password"; return; }
+    localStorage.setItem("floot_customer_session",JSON.stringify(profile));
+    msg.textContent="✓ Success!"; setTimeout(()=>loginWithProfile(profile),400);
+  }catch(e){ msg.textContent="❌ "+e.message; }
+};
+
+document.getElementById("logoutBtn").onclick=()=>{ localStorage.removeItem("floot_customer_session"); location.reload(); };
+
+document.getElementById("modeDelivery").onclick=()=>{ document.getElementById("modeDelivery").classList.add("active"); document.getElementById("modePool").classList.remove("active"); document.getElementById("deliveryView").style.display="flex"; document.getElementById("poolView").style.display="none"; setTimeout(()=>{ if(deliveryMap) deliveryMap.invalidateSize(); },200); };
+document.getElementById("modePool").onclick=()=>{ document.getElementById("modePool").classList.add("active"); document.getElementById("modeDelivery").classList.remove("active"); document.getElementById("poolView").style.display="flex"; document.getElementById("deliveryView").style.display="none"; setTimeout(()=>{ if(poolMap) poolMap.invalidateSize(); },200); };
+
+function initMaps(){
+  if(!deliveryMap){
+    deliveryMap=L.map('deliveryMap',{zoomControl:false,attributionControl:false}).setView([6.5244,3.3792],12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(deliveryMap);
+  }
+  if(!poolMap){
+    poolMap=L.map('poolMap',{zoomControl:false,attributionControl:false}).setView([6.5244,3.3792],12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(poolMap);
+  }
+  window.fromIcon=L.divIcon({html:'<div style="width:32px;height:32px;background:#10B981;border:3px solid #fff;border-radius:50%;display:grid;place-items:center;color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.4)"><i class="fa-solid fa-circle-dot" style="font-size:12px"></i></div>',className:'',iconSize:[32,32],iconAnchor:[16,16]});
+  window.toIcon=L.divIcon({html:'<div style="width:32px;height:32px;background:#EF4444;border:3px solid #fff;border-radius:50%;display:grid;place-items:center;color:#fff;box-shadow:0 4px 12px rgba(239,68,68,.4)"><i class="fa-solid fa-location-dot" style="font-size:12px"></i></div>',className:'',iconSize:[32,32],iconAnchor:[16,16]});
+}
+
+async function searchLocation(q){ if(!q||q.length<3) return []; try{ const url=`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=ng&limit=5`; const r=await fetch(url); const j=await r.json(); return j.map(o=>({label:o.display_name, main:o.display_name.split(",").slice(0,2).join(","), sub:o.display_name.split(",").slice(2,4).join(","), lat:parseFloat(o.lat), lng:parseFloat(o.lon)})); }catch{ return []; } }
+function showSuggest(id,list,onPick){ const box=document.getElementById(id); if(list.length===0){ box.style.display="none"; return; } box.innerHTML=list.map(p=>`<div><div style="width:28px;height:28px;border-radius:8px;background:#F5F3FF;display:grid;place-items:center;color:#7C3AED;font-size:11px;flex-shrink:0"><i class="fa-solid fa-location-dot"></i></div><div style="flex:1"><div style="font-weight:700;font-size:12px">${p.main}</div><div style="font-size:10px;color:#8B8BA7">${p.sub}</div></div></div>`).join(''); box.style.display="block"; Array.from(box.children).forEach((row,i)=>{ row.onclick=()=>{ onPick(list[i]); box.style.display="none"; }; }); }
+
+let dFromTimer=null, dToTimer=null;
+document.getElementById("deliveryPickup").addEventListener("input", function(){ clearTimeout(dFromTimer); const v=this.value; dFromTimer=setTimeout(async()=>{ const r=await searchLocation(v); showSuggest("deliveryPickSuggest",r,p=>{ deliveryFrom=p; document.getElementById("deliveryPickup").value=p.main; updateDeliveryMap(); if(deliveryFrom&&deliveryTo) calcDeliveryPrice(); }); },400); });
+document.getElementById("deliveryDropoff").addEventListener("input", function(){ clearTimeout(dToTimer); const v=this.value; dToTimer=setTimeout(async()=>{ const r=await searchLocation(v); showSuggest("deliveryDropSuggest",r,p=>{ deliveryTo=p; document.getElementById("deliveryDropoff").value=p.main; updateDeliveryMap(); if(deliveryFrom&&deliveryTo) calcDeliveryPrice(); }); },400); });
+function updateDeliveryMap(){
+  initMaps();
+  deliveryMarkers.forEach(m=>deliveryMap.removeLayer(m)); deliveryMarkers=[];
+  if(deliveryFrom) deliveryMarkers.push(L.marker([deliveryFrom.lat,deliveryFrom.lng],{icon:window.fromIcon}).addTo(deliveryMap));
+  if(deliveryTo) deliveryMarkers.push(L.marker([deliveryTo.lat,deliveryTo.lng],{icon:window.toIcon}).addTo(deliveryMap));
+  if(deliveryFrom&&deliveryTo) deliveryMap.fitBounds(L.latLngBounds([[deliveryFrom.lat,deliveryFrom.lng],[deliveryTo.lat,deliveryTo.lng]]),{padding:[40,40]});
+}
+async function calcDeliveryPrice(){
+  if(!deliveryFrom||!deliveryTo) return;
+  try{
+    const url=`https://router.project-osrm.org/route/v1/driving/${deliveryFrom.lng},${deliveryFrom.lat};${deliveryTo.lng},${deliveryTo.lat}?overview=full&geometries=geojson`;
+    const r=await fetch(url); const j=await r.json();
+    if(j.routes&&j.routes[0]){
+      const route=j.routes[0];
+      deliveryKm=Math.round((route.distance/1000)*10)/10;
+      const price=deliveryKm*200;
+      if(deliveryRouteLine) deliveryMap.removeLayer(deliveryRouteLine);
+      if(deliveryRouteGlow) deliveryMap.removeLayer(deliveryRouteGlow);
+      deliveryRouteGlow=L.geoJSON(route.geometry,{style:{color:"#10B981",weight:12,opacity:0.25}}).addTo(deliveryMap);
+      deliveryRouteLine=L.geoJSON(route.geometry,{style:{color:"#10B981",weight:6,opacity:0.95}}).addTo(deliveryMap);
+      document.getElementById("deliveryKm").textContent=deliveryKm+" km";
+      document.getElementById("deliveryKmCalc").textContent=deliveryKm+" km";
+      document.getElementById("deliveryPrice").textContent="₦"+price.toLocaleString();
+      document.getElementById("deliveryDistancePill").textContent=deliveryKm+" km • ₦"+price.toLocaleString()+" • NGN200/km Auto";
+      document.getElementById("deliveryDistancePill").style.display="block";
+      document.getElementById("deliveryFareBox").style.display="block";
+      const btn=document.getElementById("requestBtn"); btn.disabled=false; btn.style.opacity="1"; btn.innerHTML='<i class="fa-solid fa-bolt"></i> REQUEST DELIVERY • '+deliveryKm+'km • ₦'+price.toLocaleString();
+    }
+  }catch(e){ console.error(e); }
+}
+
+document.getElementById("requestBtn").onclick=async()=>{
+  if(!deliveryFrom||!deliveryTo||!deliveryKm){ alert("Select pickup & dropoff from dropdown first"); return; }
+  if(!parcelPicB64){ document.getElementById("parcelErr").style.display='block'; document.getElementById("requestMsg").textContent="❌ Parcel photo required"; return; }
+  const itemType=document.getElementById("itemType").value.trim()||"Parcel";
+  const desc=document.getElementById("desc").value.trim();
+  const msg=document.getElementById("requestMsg");
+  msg.textContent="Requesting delivery...";
+  const price=deliveryKm*200;
+  const otp=Math.floor(1000+Math.random()*9000).toString();
+  const payload={
+    pickup:deliveryFrom.label, dropoff:deliveryTo.label,
+    pickupLat:deliveryFrom.lat, pickupLng:deliveryFrom.lng, dropoffLat:deliveryTo.lat, dropoffLng:deliveryTo.lng,
+    itemType, distance:deliveryKm, offerAmount:price, description:desc,
+    parcelPhoto: parcelPicB64,
+    customerId: currentUser.id, customerName: currentUser.name, customerPhone: currentUser.phone,
+    customerEmail: currentUser.email, customerProfilePic: currentUser.profilePic||null,
+    status:"searching", otp, createdAt: new Date().toISOString(), driverId:null, driverName:null
+  };
+  try{
+    const ref=await addDoc(collection(db,"delivery_requests"),payload);
+    msg.textContent="✓ Request sent! Auto price ₦"+price.toLocaleString()+" • OTP: "+otp;
+    document.getElementById("itemType").value=""; document.getElementById("desc").value="";
+    document.getElementById("parcelImg").style.display='none'; document.getElementById("parcelPlace").style.display='block'; parcelPicB64=null;
+    setTimeout(()=> openTrack(ref.id), 800);
+  }catch(e){ msg.textContent="❌ "+e.message; }
+};
+
+function startListener(custId){
+  const q=query(collection(db,"delivery_requests"), orderBy("createdAt","desc"), limit(20));
+  onSnapshot(q, snap=>{
+    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const my=all.filter(r=>r.customerId===custId);
+    const box=document.getElementById("ordersBox");
+    if(my.length===0){ box.innerHTML='<div class="small">No delivery orders yet. Select addresses above - price auto NGN200/km.</div>'; return; }
+    box.innerHTML=my.map(r=>{
+      const st=r.status==='searching'?'🔍 Searching driver':r.status==='accepted'?'✅ Accepted by '+ (r.driverName||'Driver') : r.status==='delivered'?'📦 Delivered':'';
+      return `<div class="order" onclick="openTrack('${r.id}')" style="margin-bottom:8px;cursor:pointer;border-left:4px solid #10B981"><div style="display:flex;justify-content:space-between"><b style="font-size:13px">${r.pickup.split(",").slice(0,2).join(",")} → ${r.dropoff.split(",").slice(0,2).join(",")}</b><span style="font-size:10px;font-weight:800;background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:999px">${st}</span></div><div class="small" style="margin-top:4px">${r.distance}km × NGN200 = ₦${(r.offerAmount||0).toLocaleString()} • OTP: ${r.otp} • ${r.itemType||'Parcel'} • Auto price</div>${r.parcelPhoto?`<img src="${r.parcelPhoto}" style="width:100%;height:80px;object-fit:cover;border-radius:10px;margin-top:6px">`:''}<div style="font-size:11px;color:#7C3AED;font-weight:700;margin-top:6px">Tap to track →</div></div>`;
+    }).join("");
+    if(currentTrack){ const upd=all.find(r=>r.id===currentTrack.id); if(upd){ currentTrack=upd; updateTrackUI(upd); } }
+  });
+}
+
+let pft=null, ptt=null;
+document.getElementById("poolPickup").addEventListener("input", function(){ clearTimeout(pft); const v=this.value; pft=setTimeout(async()=>{ const r=await searchLocation(v); showSuggest("poolPickSuggest",r,p=>{ poolFrom=p; document.getElementById("poolPickup").value=p.main; updatePoolMap(); if(poolFrom&&poolTo) calcPoolFare(); }); },400); });
+document.getElementById("poolDropoff").addEventListener("input", function(){ clearTimeout(ptt); const v=this.value; ptt=setTimeout(async()=>{ const r=await searchLocation(v); showSuggest("poolDropSuggest",r,p=>{ poolTo=p; document.getElementById("poolDropoff").value=p.main; updatePoolMap(); if(poolFrom&&poolTo) calcPoolFare(); }); },400); });
+function updatePoolMap(){ initMaps(); poolMarkers.forEach(m=>poolMap.removeLayer(m)); poolMarkers=[]; if(poolFrom) poolMarkers.push(L.marker([poolFrom.lat,poolFrom.lng],{icon:window.fromIcon}).addTo(poolMap)); if(poolTo) poolMarkers.push(L.marker([poolTo.lat,poolTo.lng],{icon:window.toIcon}).addTo(poolMap)); if(poolFrom&&poolTo) poolMap.fitBounds(L.latLngBounds([[poolFrom.lat,poolFrom.lng],[poolTo.lat,poolTo.lng]]),{padding:[40,40]}); }
+async function calcPoolFare(){
+  if(!poolFrom||!poolTo) return;
+  try{
+    const url=`https://router.project-osrm.org/route/v1/driving/${poolFrom.lng},${poolFrom.lat};${poolTo.lng},${poolTo.lat}?overview=full&geometries=geojson`;
+    const r=await fetch(url); const j=await r.json();
+    if(j.routes&&j.routes[0]){
+      const route=j.routes[0];
+      poolKm=Math.round((route.distance/1000)*10)/10;
+      const fare=500+poolKm*60;
+      if(poolRouteLine) poolMap.removeLayer(poolRouteLine);
+      if(poolRouteGlow) poolMap.removeLayer(poolRouteGlow);
+      poolRouteGlow=L.geoJSON(route.geometry,{style:{color:"#A78BFA",weight:12,opacity:0.25}}).addTo(poolMap);
+      poolRouteLine=L.geoJSON(route.geometry,{style:{color:"#7C3AED",weight:6,opacity:0.95}}).addTo(poolMap);
+      document.getElementById("poolKm").textContent=poolKm+" km";
+      document.getElementById("poolKmCalc").textContent=poolKm+" km × ₦60 = ₦"+(poolKm*60).toLocaleString();
+      document.getElementById("poolFare").textContent="₦"+fare.toLocaleString();
+      document.getElementById("poolDistancePill").textContent="🚗 "+poolKm+" km • ₦"+fare.toLocaleString()+" • Cars/Jeeps/Sedans";
+      document.getElementById("poolDistancePill").style.display="block";
+      document.getElementById("poolFareBox").style.display="block";
+      const btn=document.getElementById("poolFindBtn"); btn.disabled=false; btn.style.opacity="1"; btn.innerHTML='<i class="fa-solid fa-search"></i> FIND POOLS FOR '+poolKm+'km • ₦'+fare.toLocaleString()+' • Cars Only';
+    }
+  }catch(e){ console.error(e); }
+}
+document.getElementById("poolMyLocBtn").onclick=()=>{ if(!navigator.geolocation) return; navigator.geolocation.getCurrentPosition(pos=>{ poolFrom={label:"My Location", main:"My Location", lat:pos.coords.latitude, lng:pos.coords.longitude}; document.getElementById("poolPickup").value="My Location"; updatePoolMap(); if(poolFrom&&poolTo) calcPoolFare(); }); };
+document.getElementById("poolFindBtn").onclick=()=>renderPoolList();
+
+function startPoolListener(){
+  const q=query(collection(db,"pool_rides"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
+    allPools=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPoolList();
+    renderMyPools();
+  });
+}
+function renderPoolList(){
+  const box=document.getElementById("poolBox");
+  const waiting=allPools.filter(p=>p.status==="waiting" && (p.seatsLeft||0)>0);
+  const carPools=waiting.filter(p=>{
+    const car=(p.car||"").toLowerCase();
+    if(car.includes("bike")||car.includes("motorcycle")||car.includes("okada")||car.includes("tricycle")||car.includes("keke")) return false;
+    return true;
+  });
+  document.getElementById("poolCount").textContent=carPools.length+" cars";
+  if(carPools.length===0){ box.innerHTML='<div class="small" style="text-align:center;padding:16px;background:#FAF7FF;border:1px dashed #EDE9FE;border-radius:12px">No car pools available<br>Only Cars, Jeeps, Sedans used for pool (no bikes)<br>Driver creates at pooldriver.floot.com.ng<br>Improved map & rider fare</div>'; return; }
+  if(!poolFrom||!poolTo){
+    box.innerHTML=carPools.map(p=>`<div class="pool-card"><div style="display:flex;justify-content:space-between"><span style="font-weight:800;font-size:12px">🚗 ${p.car||"Car"} ${p.plate||""} • ${p.driverName} • ${p.from.split(",").slice(0,2).join(",")} → ${p.to.split(",").slice(0,2).join(",")}</span><span style="font-size:10px;background:#ECFDF5;padding:4px 8px;border-radius:999px;font-weight:800">${p.seatsLeft} seats left</span></div><div class="small" style="margin-top:4px">${p.totalRouteKm}km route • ${p.occupied||0}/${p.maxSeats} joined • Total from riders ₦${(p.totalCollected||0).toLocaleString()} • Cars/Jeeps/Sedans only</div><div class="small" style="margin-top:4px;color:#7C3AED">Select your pickup/dropoff above to calculate YOUR fare (rider-based)</div></div>`).join('');
+    return;
+  }
+  const fare=500+poolKm*60;
+  box.innerHTML=carPools.map(p=>`<div class="pool-card live"><div style="display:flex;justify-content:space-between"><span style="font-weight:800;font-size:12px">🚗 ${p.car||"Car"} (${p.plate||""}) • ${p.driverName} • ⭐ 4.8</span><span style="font-size:10px;background:#ECFDF5;padding:4px 8px;border-radius:999px;font-weight:800">${p.seatsLeft} seats left • ${p.car.includes("Jeep")?"Jeep":p.car.includes("Sedan")?"Sedan":"Car"}</span></div><div style="font-weight:700;font-size:12px;margin-top:4px">${p.from.split(",").slice(0,2).join(",")} → ${p.to.split(",").slice(0,2).join(",")} • ${p.totalRouteKm}km route • ${p.duration||""}</div><div class="small" style="margin-top:4px">${p.occupied||0}/${p.maxSeats} joined • Total collected ₦${(p.totalCollected||0).toLocaleString()} • ${p.driverPhone||""} • Cars/Jeeps/Sedans only • Premium</div><div style="background:#F5F3FF;border-radius:10px;padding:8px;margin-top:8px;display:flex;justify-content:space-between;align-items:center"><div><div class="small">Your trip: ${poolFrom.main} → ${poolTo.main}</div><div style="font-weight:900;color:#7C3AED">${poolKm}km = ₦${fare.toLocaleString()} (500+${poolKm}×60) • Short cheaper</div><div class="small">This amount sent to driver • Driver can cancel if not along route</div></div><button onclick="joinPool('${p.id}')" style="background:linear-gradient(90deg,#7C3AED,#8B5CF6);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:800;font-size:12px;box-shadow:0 4px 12px rgba(124,58,237,.25)">JOIN FOR ₦${fare.toLocaleString()}</button></div></div>`).join('');
+}
+window.joinPool=async(id)=>{
+  if(!poolFrom||!poolTo||!poolKm){ alert("Select pickup & dropoff from dropdown first"); return; }
+  const fare=500+poolKm*60;
+  if(!confirm(`Join pool? 🚗 Cars/Jeeps/Sedans only\nYour trip: ${poolFrom.main} → ${poolTo.main}\nYour km: ${poolKm}km\nYour fare: ₦${fare}\n\nThis amount sent to driver. Driver can cancel if not along route.`)) return;
+  try{
+    const ref=doc(db,"pool_rides",id);
+    const snap=await getDoc(ref);
+    if(!snap.exists()){ alert("Pool gone"); return; }
+    const p=snap.data();
+    if(p.seatsLeft<=0){ alert("Full"); return; }
+    const otp=Math.floor(1000+Math.random()*9000).toString();
+    const passenger={ customerId:currentUser.id, name:currentUser.name, pickup:poolFrom.label, dropoff:poolTo.label, pickupLat:poolFrom.lat, pickupLng:poolFrom.lng, dropoffLat:poolTo.lat, dropoffLng:poolTo.lng, distanceKm:poolKm, fare, otp, joinedAt:new Date().toISOString(), vehicleType:p.car||"Car" };
+    await updateDoc(ref,{ passengers:[...(p.passengers||[]), passenger], occupied:(p.occupied||0)+1, seatsLeft:(p.seatsLeft||p.maxSeats)-1, totalCollected:(p.totalCollected||0)+fare });
+    await addDoc(collection(db,"customer_pool_joins"),{ customerId:currentUser.id, poolId:id, driverName:p.driverName, from:p.from, to:p.to, myPickup:poolFrom.label, myDropoff:poolTo.label, distanceKm:poolKm, fare, otp, status:"joined", vehicleType:p.car||"Car", createdAt:new Date().toISOString() });
+    alert(`Joined! 🚗 ${p.car} • Your fare ₦${fare} sent to driver. OTP ${otp}.`);
+  }catch(e){ alert(e.message); }
+};
+function renderMyPools(){
+  const q=query(collection(db,"customer_pool_joins"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
+    const my=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.customerId===currentUser?.id);
+    const box=document.getElementById("myPoolBox");
+    if(my.length===0){ box.innerHTML='<div class="small">No pool rides yet - pool improved with cars/jeeps/sedans only, rider-based fare, premium map</div>'; return; }
+    box.innerHTML=my.slice(0,5).map(r=>`<div style="background:#FAF7FF;border:1px solid #EDE9FE;border-radius:10px;padding:10px;margin-bottom:6px"><div style="display:flex;justify-content:space-between"><span style="font-weight:800;font-size:12px">🚗 ${r.vehicleType||"Car"} • ${r.from.split(",").slice(0,2).join(",")} → ${r.to.split(",").slice(0,2).join(",")}</span><span style="font-size:10px;background:#7C3AED;color:#fff;padding:2px 8px;border-radius:999px">Pool • Improved</span></div><div class="small">${r.myPickup.split(",").slice(0,2).join(",")} → ${r.myDropoff.split(",").slice(0,2).join(",")} ${r.distanceKm}km = ₦${r.fare.toLocaleString()} • OTP <b style="color:#7C3AED">${r.otp}</b> • Short cheaper logic</div></div>`).join('');
+  });
+}
+
+window.openTrack=async(id)=>{
+  let order=null;
+  try{ const snap=await getDoc(doc(db,"delivery_requests",id)); if(snap.exists()) order={id:snap.id,...snap.data()}; }catch{}
+  if(!order) return;
+  currentTrack=order;
+  document.getElementById("trackPage").style.display='flex';
+  document.getElementById("trackTitle").textContent=order.pickup.split(",").slice(0,2).join(",")+" → "+order.dropoff.split(",").slice(0,2).join(",");
+  document.getElementById("trackOtp").textContent=order.otp;
+  document.getElementById("trackItem").textContent=order.itemType||"Parcel";
+  document.getElementById("trackDesc").textContent=order.description||"No description";
+  if(order.parcelPhoto){ document.getElementById("trackParcelImg").src=order.parcelPhoto; }
+  updateTrackUI(order);
+  setTimeout(()=>{ initTrackMap(); updateTrackMap(); },400);
+};
+function updateTrackUI(order){
+  document.getElementById("trackStatus").textContent=order.status==='searching'?'Searching driver... • Auto NGN200/km':order.status==='accepted'?'Accepted • OTP '+order.otp:'Delivered';
+  if(order.status==='accepted'){ document.getElementById("searchingInfo").style.display='none'; document.getElementById("driverInfo").style.display='block'; getDriverProfile(order.driverId); }
+  else { document.getElementById("searchingInfo").style.display='block'; document.getElementById("driverInfo").style.display='none'; }
+}
+async function getDriverProfile(driverId){
+  try{
+    const snap=await getDoc(doc(db,"drivers",driverId));
+    if(snap.exists()){
+      const d=snap.data();
+      document.getElementById("driverName").textContent=d.name||"Driver";
+      document.getElementById("driverPhone").textContent=d.phone||"";
+      document.getElementById("driverVehicle").textContent=d.bikeNumber||d.vehicle||"";
+      document.getElementById("callDriverBtn").onclick=()=>{ window.open(`tel:${d.phone}`); };
+    }
+  }catch{}
+}
+function initTrackMap(){ if(osmMap) return; osmMap=L.map('osmMap',{zoomControl:false}).setView([6.5244,3.3792],13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(osmMap); }
+async function geocode(addr){ try{ const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr+', Lagos')}&limit=1`); const j=await r.json(); if(j[0]) return {lat:+j[0].lat,lng:+j[0].lon}; }catch{} return {lat:6.5244+Math.random()*0.03,lng:3.3792+Math.random()*0.03}; }
+async function updateTrackMap(){
+  if(!currentTrack) return;
+  const pickup=await geocode(currentTrack.pickup);
+  const drop=await geocode(currentTrack.dropoff);
+  if(!osmMap) initTrackMap();
+  if(customerMarker) osmMap.removeLayer(customerMarker);
+  if(driverMarker) osmMap.removeLayer(driverMarker);
+  if(routeLine) osmMap.removeLayer(routeLine);
+  driverMarker=L.marker([pickup.lat+0.005,pickup.lng+0.005],{icon:L.divIcon({html:'<div style="width:18px;height:18px;background:#7C3AED;border:3px solid #fff;border-radius:50%"></div>',iconSize:[18,18]})}).addTo(osmMap);
+  customerMarker=L.marker([drop.lat,drop.lng],{icon:L.divIcon({html:'<div style="background:#7C3AED;color:#fff;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800">DROP</div>',iconSize:[50,20]})}).addTo(osmMap);
+  routeLine=L.polyline([[pickup.lat,pickup.lng],[drop.lat,drop.lng]],{color:'#7C3AED',weight:4,dashArray:'8,8',opacity:.6}).addTo(osmMap);
+  osmMap.fitBounds(L.latLngBounds([[pickup.lat,pickup.lng],[drop.lat,drop.lng]]),{padding:[60,60]});
+  const dist=Math.sqrt(Math.pow(pickup.lat-drop.lat,2)+Math.pow(pickup.lng-drop.lng,2))*111;
+  document.getElementById("compassDist").textContent=dist.toFixed(1)+' km • NGN200/km Auto = ₦'+(dist*200).toFixed(0);
+}
+document.getElementById("backTrack").onclick=()=>{ document.getElementById("trackPage").style.display='none'; currentTrack=null; };
+</script>
+</body>
+</html>
