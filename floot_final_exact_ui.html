@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Floot Driver - Exact UI</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,system-ui;background:#fff;height:100dvh;overflow:hidden}
+.app{position:relative;width:100%;height:100dvh;max-width:480px;margin:0 auto;background:#f6f5fb;overflow:hidden}
+#map{position:absolute;inset:0;z-index:1}
+.header{position:absolute;top:0;left:0;right:0;z-index:10;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.profile{background:#fff;border-radius:999px;padding:6px 14px 6px 6px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.15);border:1px solid #f0eefb}
+.avatar{width:32px;height:32px;border-radius:50%;background:#F5F3FF;display:grid;place-items:center;font-weight:900;color:#7C3AED}
+.logout{width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.15);border:1px solid #eee;display:grid;place-items:center;cursor:pointer;color:#666}
+.sheet{position:absolute;bottom:0;left:0;right:0;z-index:20;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -12px 48px rgba(0,0,0,.18);max-height:88dvh;display:flex;flex-direction:column}
+.handle{width:36px;height:4px;background:#E9E5FF;border-radius:999px;margin:10px auto 0}
+.tabs{display:flex;gap:8px;padding:14px 16px 0}.tab{flex:1;padding:13px;border-radius:16px;border:none;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}.tab.active{background:#7C3AED;color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.3)}.tab:not(.active){background:#F3F0FF;color:#6B7280}
+.count{background:#fff;color:#7C3AED;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:900;margin-left:4px}.tab.active .count{background:#fff;color:#7C3AED}
+.content{overflow:auto;padding:14px 12px 20px;flex:1;background:#fff;border-radius:28px 28px 0 0}
+.card{background:#fff;border:1.5px solid #EDE9FE;border-radius:20px;padding:12px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.card.accepted{border-color:#A7F3D0;box-shadow:0 8px 24px rgba(16,185,129,.12)}
+.route{display:flex;gap:10px;align-items:flex-start;margin-bottom:2px}.dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex-shrink:0}.dot.green{background:#10B981}.dot.purple{background:#7C3AED}
+.addr{font-weight:700;font-size:13px;color:#1F2937;line-height:1.3;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{font-size:11px;color:#6B7280;margin:6px 0 10px 20px;line-height:1.4}
+.otp-row{display:flex;gap:10px;margin:10px 0}
+.otp-box{flex:1;background:#1F1A2E;color:#fff;border-radius:14px;padding:10px;text-align:center}
+.otp-box .lbl{font-size:10px;letter-spacing:.08em;opacity:.7;font-weight:700}
+.otp-box .val{font-weight:900;font-size:20px;margin-top:2px;letter-spacing:.05em}
+.collect-box{flex:1;background:#FEF3C7;border-radius:14px;padding:10px;text-align:center;border:1px solid #FDE68A}
+.collect-box .lbl{font-size:10px;letter-spacing:.08em;color:#92400E;font-weight:800}
+.collect-box .val{font-weight:900;font-size:18px;color:#78350F;margin-top:2px}
+.actions{display:flex;gap:8px;margin-top:10px}
+.btn{border:none;border-radius:999px;padding:11px 14px;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;flex:1}
+.btn-accept{background:#7C3AED;color:#fff;box-shadow:0 6px 16px rgba(124,58,237,.25)}
+.btn-call{background:#F5F3FF;color:#7C3AED}
+.btn-decline{background:#FFF1F2;color:#BE123C}
+.input-group{position:relative;margin-bottom:12px}.input{width:100%;background:#F8F7FF;border:1.5px solid #EDE9FE;border-radius:16px;padding:16px 16px 16px 48px;font-weight:700;outline:none}.input:focus{border-color:#7C3AED;background:#fff}
+.icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:12px}
+.sug{position:absolute;left:0;right:0;top:56px;background:#fff;border:1px solid #EDE9FE;border-radius:16px;z-index:99;max-height:180px;overflow:auto;display:none;box-shadow:0 12px 30px rgba(0,0,0,.15)}.sug div{padding:12px;font-weight:600;font-size:13px;border-bottom:1px solid #F5F3FF;cursor:pointer}
+.badge{position:absolute;top:-6px;right:-6px;background:#EF4444;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:999px}
+.notif{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:12px 16px;border-radius:14px;z-index:99999;display:none;gap:8px;font-weight:600;font-size:13px}.notif.show{display:flex}
+.locked{background:#FEF3C7;border:1px solid #FDE68A;border-radius:14px;padding:12px;text-align:center;margin-bottom:12px}
+.label{font-size:10px;font-weight:800;color:#888;letter-spacing:.08em;text-transform:uppercase;margin:10px 0 6px}
+.hist{border:1px solid #EDE9FE;border-radius:14px;padding:10px;margin-bottom:8px;background:#FAF7FF}
+</style></head><body>
+<div id="notif" class="notif"><span id="nText"></span></div>
+<div class="app"><div id="map"></div>
+<div class="header"><div class="profile"><div class="avatar">U</div><div><div style="font-weight:900;font-size:13px">Uchenna</div><div style="font-size:11px;color:#6B7280">flootinitiative • Car</div></div></div><button class="logout" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></div>
+<div class="sheet"><div class="handle"></div>
+<div class="tabs"><button id="tCreate" class="tab"><i class="fa-solid fa-plus"></i> Create</button><button id="tTrips" class="tab"><i class="fa-solid fa-route"></i> Trips <span class="count" id="cTrips">0</span></button><button id="tRiders" class="tab active"><i class="fa-solid fa-users"></i> Riders <span class="count" id="cRiders">8</span></button></div>
+<div class="content">
+<div id="createSec" style="display:none">
+<div id="lockBox" style="display:none" class="locked"><b>🚗 One Active Trip Only</b><div style="font-size:11px;color:#666;margin-top:4px">Complete current trip before creating new one</div></div>
+<div id="formBox">
+<div class="label">Create • Dropdown map only • Nigeria wide</div>
+<div style="position:relative"><div class="input-group"><div class="icon" style="background:#ECFDF5;color:#10B981"><i class="fa-solid fa-circle"></i></div><input id="fromI" class="input" placeholder="From - e.g. Ketu, Lagos"></div><div id="fromS" class="sug"></div></div>
+<div style="position:relative"><div class="input-group"><div class="icon" style="background:#FEF2F2;color:#EF4444"><i class="fa-solid fa-location-dot"></i></div><input id="toI" class="input" placeholder="To - e.g. Onitsha"></div><div id="toS" class="sug"></div></div>
+<div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-chair"></i></div><input id="seatI" class="input" type="number" value="4" min="1" max="6"></div>
+<button id="createBtn" class="btn btn-accept" style="width:100%;border-radius:16px;padding:14px"><i class="fa-solid fa-car"></i> Create pool trip</button>
+<div id="cMsg" style="font-size:11px;color:#666;text-align:center;margin-top:8px"></div>
+<div id="activeTripBox" style="margin-top:12px"></div>
+</div>
+</div>
+
+<div id="tripsSec" style="display:none"><div class="label">Trips • One at a time</div><div id="tripsBox"></div></div>
+
+<div id="ridersSec">
+<div id="activeBox"></div>
+<div id="incomingBox"></div>
+<div id="historyBoxWrap" style="margin-top:16px"><div class="label">History • Completed & Cancelled</div><div id="histBox"></div></div>
+</div>
+
+</div></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let map=null, fromCoord=null, toCoord=null, fromM=null, toM=null, line=null;
+let incoming=[], active=[], history=[], curIdx=0, activeTrip=null;
+const CENTER=[6.5244,3.3792];
+const PLACES=[
+ {name:"Ketu, Kosofe, Lagos State, 100247, Nigeria",lat:6.6025,lng:3.3882},
+ {name:"Onitsha, Anambra State, Nigeria",lat:6.1240,lng:6.7883},
+ {name:"Lagos, Lagos Island, Lagos State, 100242, Nigeria",lat:6.4550,lng:3.3840},
+ {name:"Alimosho, Lagos State, Nigeria",lat:6.6140,lng:3.2620},
+ {name:"Yaba, Lagos",lat:6.5095,lng:3.3711},{name:"Ikeja, Lagos",lat:6.6018,lng:3.3515},{name:"Lekki, Lagos",lat:6.4456,lng:3.4558},
+ {name:"Oshodi, Lagos",lat:6.5538,lng:3.3425},{name:"Ikorodu Bus Stop, Lagos",lat:6.6194,lng:3.5081},{name:"CMS, Lagos Island",lat:6.4443,lng:3.3897}
+];
+function notif(m){ const e=document.getElementById("notif"); document.getElementById("nText").textContent=m; e.classList.add("show"); setTimeout(()=>e.classList.remove("show"),3500); }
+function initMap(){ if(map) return; map=L.map('map',{zoomControl:false,attributionControl:false}).setView(CENTER,10); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map); L.control.zoom({position:'bottomright'}).addTo(map); }
+function hav(a,b){ const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180; const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
+function attach(id,sid,setter){
+ const inp=document.getElementById(id), sug=document.getElementById(sid);
+ inp.addEventListener("input",()=>{
+  const v=inp.value.trim().toLowerCase(); if(v.length<1){sug.style.display="none";return;}
+  let f=PLACES.filter(p=>p.name.toLowerCase().includes(v)).slice(0,6);
+  // also fetch nominatim
+  sug.innerHTML=f.map(p=>'<div data-lat="'+p.lat+'" data-lng="'+p.lng+'" data-name="'+p.name+'">'+p.name+'</div>').join("");
+  sug.style.display=f.length?"block":"none";
+  sug.querySelectorAll("div").forEach(el=>{ el.onclick=()=>{ inp.value=el.getAttribute("data-name"); setter({lat:+el.getAttribute("data-lat"),lng:+el.getAttribute("data-lng")}); sug.style.display="none"; upd(); }; });
+  // try nominatim
+  setTimeout(async()=>{ try{ const q=inp.value.trim(); if(q.length<3) return; const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&countrycodes=ng&q='+encodeURIComponent(q)+'&limit=5'); const j=await r.json(); if(j.length>0){ let extra=j.map(o=>'<div data-lat="'+o.lat+'" data-lng="'+o.lon+'" data-name="'+o.display_name+'">'+o.display_name+'</div>').join(""); sug.innerHTML+=extra; sug.style.display="block"; sug.querySelectorAll("div").forEach(el=>{ el.onclick=()=>{ inp.value=el.getAttribute("data-name").split(",").slice(0,3).join(","); setter({lat:+el.getAttribute("data-lat"),lng:+el.getAttribute("data-lng")}); sug.style.display="none"; upd(); }; }); } }catch{} },500);
+ });
+ document.addEventListener("click",e=>{ if(!sug.contains(e.target)&&e.target!==inp) sug.style.display="none"; });
+}
+attach("fromI","fromS",c=>fromCoord=c); attach("toI","toS",c=>toCoord=c);
+function upd(){ if(!fromCoord||!toCoord) return; if(!map) initMap(); if(fromM) map.removeLayer(fromM); if(toM) map.removeLayer(toM); if(line) map.removeLayer(line); const fI=L.divIcon({html:'<div style="width:12px;height:12px;background:#10B981;border:3px solid #fff;border-radius:50%"></div>',iconSize:[12,12]}); const tI=L.divIcon({html:'<div style="width:12px;height:12px;background:#7C3AED;border:3px solid #fff;border-radius:50%"></div>',iconSize:[12,12]}); fromM=L.marker([fromCoord.lat,fromCoord.lng],{icon:fI}).addTo(map); toM=L.marker([toCoord.lat,toCoord.lng],{icon:tI}).addTo(map); line=L.polyline([[fromCoord.lat,fromCoord.lng],[toCoord.lat,toCoord.lng]],{color:'#7C3AED',weight:4,dashArray:'8,8'}).addTo(map); map.fitBounds(L.latLngBounds([[fromCoord.lat,fromCoord.lng],[toCoord.lat,toCoord.lng]]),{padding:[80,80]}); }
+function setTab(w){ document.getElementById("createSec").style.display=w=="create"?"block":"none"; document.getElementById("tripsSec").style.display=w=="trips"?"block":"none"; document.getElementById("ridersSec").style.display=w=="riders"?"block":"none"; document.getElementById("tCreate").classList.toggle("active",w=="create"); document.getElementById("tTrips").classList.toggle("active",w=="trips"); document.getElementById("tRiders").classList.toggle("active",w=="riders"); if(map) setTimeout(()=>map.invalidateSize(),200); }
+document.getElementById("tCreate").onclick=()=>setTab("create"); document.getElementById("tTrips").onclick=()=>setTab("trips"); document.getElementById("tRiders").onclick=()=>setTab("riders");
+
+function makeMock(){
+ const names=["Jake","Chinedu","Aisha","Tunde","Amaka"]; 
+ const n=names[Math.floor(Math.random()*names.length)];
+ const dist=(600+Math.random()*50).toFixed(1);
+ const fare=Math.floor(500+dist*60);
+ const otp=Math.floor(1000+Math.random()*9000);
+ return {id:"r_"+Date.now()+Math.random(),name:n,phone:"0817"+Math.floor(1000000+Math.random()*9000000),from:"Ketu, Kosofe, Lagos State, 100247, Nigeria",to:"Onitsha",poolFrom:"Lagos, Lagos Island, Lagos State, 100242, Nigeria",poolTo:"Alimosho, Lagos State, Nigeria",dist:dist,fare:fare,otp:otp,status:"searching"};
+}
+// preload with screenshot data to show working
+incoming=[
+ {id:"r1",name:"Rider",phone:"",from:"Ketu, Kosofe, Lagos State, 100247, Nigeria",to:"Onitsha",poolFrom:"Lagos, Lagos Island, Lagos State, 100242, Nigeria",poolTo:"Alimosho, Lagos State, Nigeria",dist:"607.5",fare:36953,otp:4995,status:"searching"},
+ {id:"r2",name:"Jake",phone:"08179393952",from:"Ketu, Kosofe, Lagos State, 100247, Nigeria",to:"Onitsha",poolFrom:"Lagos, Lagos Island, Lagos State, 100242, Nigeria",poolTo:"Alimosho, Lagos State, Nigeria",dist:"607.5",fare:36953,otp:6551,status:"accepted"}
+];
+active=[incoming[1]];
+incoming=[incoming[0]];
+
+function cardHTML(r, isActive){
+ return `<div class="card ${isActive?'accepted':''}">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+    <div style="width:36px;height:36px;border-radius:50%;background:${isActive?'#10B981':'#F5F3FF'};display:grid;place-items:center;color:${isActive?'#fff':'#7C3AED'};font-weight:900">${r.name[0]||'U'}</div>
+    <div style="flex:1"><div style="font-weight:900;font-size:13px">${isActive?r.name:'Ketu rider'} ${isActive?'<span style="font-size:11px;color:#10B981">• '+r.phone+'</span>':''}</div>${!isActive?'':''}</div>
+    <div style="text-align:right"><div style="font-weight:900;font-size:16px;color:#10B981">₦${r.fare.toLocaleString()}</div>${isActive?'<div style="font-size:10px;background:#ECFDF5;color:#065F46;padding:3px 8px;border-radius:999px;font-weight:800;text-transform:uppercase">'+r.status+'</div>':''}</div>
+  </div>
+  ${!isActive?`<div class="route"><div class="dot green"></div><div class="addr">${r.from}</div></div><div class="route"><div class="dot purple"></div><div class="addr">${r.to}</div></div><div class="sub">${r.dist}km • Your pool: ${r.poolFrom} → ${r.poolTo}</div>`:
+  `<div style="background:#F8F7FF;border-radius:14px;padding:10px;margin:8px 0"><div style="font-size:10px;font-weight:800;color:#888;letter-spacing:.06em">CUSTOMER DESTINATION</div><div class="route" style="margin-top:8px"><div class="dot green"></div><div class="addr">${r.from}</div></div><div class="route" style="margin-top:6px"><div class="dot purple"></div><div class="addr">${r.to}</div></div><div class="sub" style="margin-bottom:0">${r.dist}km • Your pool: ${r.poolFrom} → ${r.poolTo}</div></div>`
+  }
+  <div class="otp-row"><div class="otp-box"><div class="lbl">OTP</div><div class="val">${r.otp}</div></div><div class="collect-box"><div class="lbl">TO COLLECT</div><div class="val">₦${r.fare.toLocaleString()}</div></div></div>
+  <div class="actions">
+    ${isActive?`
+      <button onclick="verifyPick('${r.id}')" class="btn btn-accept" style="flex:1.2"><i class="fa-solid fa-check"></i> Verify Pickup OTP</button>
+      <button onclick="cancelBefore('${r.id}')" class="btn btn-decline" style="flex:0.8"><i class="fa-solid fa-xmark"></i> Cancel</button>
+    `:`
+      <button onclick="accept('${r.id}')" class="btn btn-accept"><i class="fa-solid fa-check"></i> Accept</button>
+      <button onclick="callR('${r.phone}')" class="btn btn-call"><i class="fa-solid fa-phone"></i></button>
+      <button onclick="decline('${r.id}')" class="btn btn-decline"><i class="fa-solid fa-xmark"></i></button>
+    `}
+  </div>
+</div>`;
+}
+function render(){
+ document.getElementById("incomingBox").innerHTML=incoming.map(r=>cardHTML(r,false)).join("")||'<div class="small" style="text-align:center;padding:20px">No incoming riders - create trip first</div>';
+ document.getElementById("activeBox").innerHTML=active.map(r=>cardHTML(r,true)).join("");
+ document.getElementById("cRiders").textContent=incoming.length+active.length;
+ document.getElementById("cTrips").textContent=activeTrip?1:0;
+ document.getElementById("tripsBox").innerHTML=activeTrip?`<div class="card"><b>🚗 ${activeTrip.from.split(",")[0]} → ${activeTrip.to.split(",")[0]}</b><div class="small">${activeTrip.km.toFixed(1)}km • ${activeTrip.seats} seats • ₦${activeTrip.total.toLocaleString()}</div><button onclick="cancelTrip()" class="btn btn-decline" style="margin-top:10px;width:100%">Cancel Trip</button></div>`:'<div class="small">No active trip - only 1 trip at a time</div>';
+ const hBox=document.getElementById("histBox");
+ if(history.length==0) hBox.innerHTML='<div class="small">No history yet</div>'; else hBox.innerHTML=history.map(h=>'<div class="hist"><div style="display:flex;justify-content:space-between"><b style="font-size:12px">'+h.name+' → '+h.to.split(",")[0]+'</b><span style="font-weight:800;color:'+(h.status=="completed"?"#065F46":"#BE123C")+'">'+(h.status=="completed"?"₦"+h.fare.toLocaleString():h.status)+'</span></div><div class="small">'+h.dist+'km</div></div>').join("");
+ const tripLock=document.getElementById("lockBox"); tripLock.style.display=activeTrip?'block':'none'; document.getElementById("createBtn").disabled=!!activeTrip;
+}
+function accept(id){ const i=incoming.findIndex(x=>x.id==id); if(i==-1) return; const r=incoming[i]; r.status="accepted"; active.push(r); incoming.splice(i,1); render(); notif("Accepted - rider suspended on page"); }
+function decline(id){ if(!confirm("Decline? Rider will disappear completely?")) return; incoming=incoming.filter(x=>x.id!=id); active=active.filter(x=>x.id!=id); render(); notif("Declined - completely removed"); }
+function cancelBefore(id){ if(!confirm("Cancel this accepted rider before pickup? Rider will disappear completely from your app")) return; const i=active.findIndex(x=>x.id==id); if(i>-1){ active.splice(i,1); render(); notif("Cancelled - rider completely removed from your app"); } }
+function verifyPick(id){ const r=active.find(x=>x.id==id); if(!r) return; const otp=prompt("Enter OTP from customer (shown as "+r.otp+") to verify pickup:"); if(!otp) return; if(otp!=String(r.otp)){ notif("❌ Wrong OTP"); return; } r.status="completed"; history.push({...r,status:"completed"}); active=active.filter(x=>x.id!=id); if(activeTrip) activeTrip.total+=r.fare; render(); notif("🎉 Pickup verified - Trip completed ₦"+r.fare.toLocaleString()); }
+function callR(p){ if(p) window.open("tel:"+p); else notif("No phone"); }
+function cancelTrip(){ if(!confirm("Cancel active trip?")) return; activeTrip=null; incoming=[]; active=[]; render(); if(fromM) map.removeLayer(fromM); if(toM) map.removeLayer(toM); if(line) map.removeLayer(line); fromCoord=null; toCoord=null; document.getElementById("fromI").value=""; document.getElementById("toI").value=""; notif("Trip cancelled"); }
+
+document.getElementById("createBtn").onclick=()=>{
+ if(activeTrip){ notif("One trip only - complete current trip"); return; }
+ if(!fromCoord||!toCoord){ document.getElementById("cMsg").textContent="⚠️ Select From & To from dropdown suggestions (must click suggestion)"; return; }
+ const from=document.getElementById("fromI").value, to=document.getElementById("toI").value, seats=parseInt(document.getElementById("seatI").value)||4;
+ const km=hav(fromCoord,toCoord);
+ activeTrip={from,to,fromCoord,toCoord,seats,km,total:0,status:"open"};
+ document.getElementById("cMsg").textContent="✓ Trip created - One trip active";
+ // simulate incoming like screenshot
+ incoming=[{id:"r_"+Date.now(),name:"New Rider",from:from,to:to,poolFrom:from,poolTo:to,dist:km.toFixed(1),fare:500+Math.round(km*60),otp:Math.floor(1000+Math.random()*9000),status:"searching"}];
+ render(); setTab("riders"); notif("Trip created - riders can now see it");
+};
+
+initMap(); render();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body></html>
