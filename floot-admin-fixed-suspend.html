@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Floot Admin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,system-ui,sans-serif;background:#FFFFFF;color:#1E1B2E;min-height:100vh}
+.app{max-width:1280px;margin:0 auto;padding:18px;padding-bottom:100px}
+.auth-bg{position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 0%, #E9E5FF 0%, #FFFFFF 65%);display:flex;align-items:center;justify-content:center;z-index:9999}
+.auth-card{background:#fff;border:1px solid #E8E2FF;box-shadow:0 20px 50px rgba(139,61,255,.15);border-radius:24px;padding:32px;width:100%;max-width:360px;text-align:center}
+.card{background:#fff;border:1px solid #EEE8FF;border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 2px 12px rgba(139,61,255,.06)}
+.input{width:100%;background:#FAF8FF;border:1px solid #EDE7FF;border-radius:12px;padding:10px 12px;color:#1E1B2E;font-size:13px;outline:none}
+.input:focus{border-color:#8B3DFF}
+.btn{border:none;padding:9px 14px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn-purple{background:#1E1B2E;color:#fff}
+.btn-purple:hover{background:#000}
+.btn-violet{background:#8B3DFF;color:#fff}
+.btn-violet:hover{background:#7C2DFF}
+.btn-ghost{background:#F6F3FF;color:#6B6B86;border:1px solid #EDE7FF}
+.btn-ghost:hover{background:#EEE8FF}
+.btn-del{background:#FFF1F1;color:#E84646;border:1px solid #FFD6D6}
+.btn-green{background:#F6F3FF;color:#8B3DFF;border:1px solid #DDD6FE}
+.tab-pill{padding:8px 14px;border-radius:999px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #EEE8FF;white-space:nowrap}
+.tab-active{background:#1E1B2E;color:#fff;border-color:#1E1B2E}
+.tab-inactive{background:#fff;color:#6B6B86;border:1px solid #EEE8FF}
+.badge{font-size:9px;font-weight:900;padding:4px 10px;border-radius:999px}
+.b-searching{color:#6D28D9;background:#EDE9FE;border:1px solid #DDD6FE}
+.b-accepted{color:#5B21B6;background:#EDE9FE;border:1px solid #DDD6FE}
+.b-wallet{color:#5B21B6;background:#F6F3FF;border:1px solid #DDD6FE}
+.b-cash{color:#6D28D9;background:#FAF5FF;border:1px solid #EDE9FF}
+.b-profit{color:#5B21B6;background:#EDE9FE;border:1px solid #DDD6FE}
+.b-suspended{color:#E84646;background:#FFF1F1;border:1px solid #FFD6D6}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:800;color:#9AA0B6;text-align:left;padding:10px 12px;border-bottom:1px solid #F0EDFF}
+td{padding:11px 12px;font-size:12.5px;border-bottom:1px solid #F6F3FF;vertical-align:top}
+.modal-bg{position:fixed;inset:0;background:rgba(30,27,46,.45);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal-card{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:560px;max-height:90vh;overflow:auto}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat-box{background:#fff;border:1px solid #EEE8FF;border-radius:14px;padding:14px}
+.kpi{font-size:10px;font-weight:800;letter-spacing:.06em;color:#9AA0B6;text-transform:uppercase}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.support-layout{display:flex;height:72vh;overflow:hidden;border-radius:14px;border:1px solid #EEE8FF}
+.support-list{width:38%;border-right:1px solid #EEE8FF;display:flex;flex-direction:column;overflow:hidden;background:#FCFBFF}
+.support-chat{flex:1;display:flex;flex-direction:column;background:#fff}
+.support-item{padding:12px 14px;border-bottom:1px solid #F3F0FF;cursor:pointer}
+.support-item.active{background:#EDE9FF;border-left:3px solid #8B3DFF}
+.img-thumb{width:48px;height:48px;border-radius:12px;object-fit:cover;background:#F6F3FF;border:1px solid #EEE8FF}
+.img-preview{width:100%;border-radius:14px;object-fit:cover;background:#FAF8FF;border:1px solid #EEE8FF;max-height:320px}
+.doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div id="authScreen" class="auth-bg">
+  <div class="auth-card">
+    <div style="width:56px;height:56px;border-radius:14px;background:#1E1B2E;display:grid;place-items:center;margin:0 auto 14px;color:#fff;font-size:22px"><i class="fa-solid fa-lock"></i></div>
+    <div style="font-weight:900;font-size:16px">Floot Admin</div>
+    <input id="codeInput" type="password" placeholder="Code" class="input" style="margin-top:18px;text-align:center">
+    <button id="unlockBtn" class="btn btn-purple" style="width:100%;margin-top:12px;padding:13px;justify-content:center">Unlock</button>
+    <div id="codeErr" style="color:#E84646;font-size:11px;margin-top:10px"></div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-weight:900;font-size:15px">Floot Admin</div>
+      <div id="connStatus" style="font-size:11px;color:#8B8BA7;margin-top:2px"><span style="width:6px;height:6px;background:#8B3DFF;border-radius:50%;display:inline-block"></span> Live</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="profitHeader" style="background:#EDE9FE;color:#5B21B6;padding:7px 14px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid #DDD6FE">PROFIT ₦0</span>
+      <span id="totalBalHeader" style="background:#1E1B2E;color:#fff;padding:7px 14px;border-radius:999px;font-size:11px;font-weight:800">TOTAL ₦0</span>
+      <span id="supportCount" style="background:#8B3DFF;color:#fff;padding:7px 12px;border-radius:999px;font-size:10px;font-weight:900">0 CHATS</span>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-box"><div class="kpi">Customers</div><div id="statCustomers" style="font-weight:900;font-size:22px;margin-top:6px">0</div></div>
+    <div class="stat-box"><div class="kpi">Drivers</div><div id="statDrivers" style="font-weight:900;font-size:22px;margin-top:6px">0</div></div>
+    <div class="stat-box"><div class="kpi">Sales Force</div><div id="statSales" style="font-weight:900;font-size:22px">0</div></div>
+    <div class="stat-box"><div class="kpi">Pending Payouts</div><div id="statPayout" style="font-weight:900;font-size:22px;color:#8B3DFF">0</div></div>
+    <div class="stat-box"><div class="kpi">Live Requests</div><div id="statReq" style="font-weight:900;font-size:22px">0</div></div>
+    <div class="stat-box"><div class="kpi">Wallet / Cash</div><div id="statPay" style="font-weight:900;font-size:13px">0 / 0</div></div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="tab-pill tab-active" data-view="requests">Requests</button>
+    <button class="tab-pill tab-inactive" data-view="drivers">Drivers</button>
+    <button class="tab-pill tab-inactive" data-view="sales">Sales Force <span id="salesTabCount" style="background:#1E1B2E;color:#fff;padding:2px 6px;border-radius:999px;margin-left:4px">0</span></button>
+    <button class="tab-pill tab-inactive" data-view="customers">Customers</button>
+    <button class="tab-pill tab-inactive" data-view="wallets">Wallets</button>
+    <button class="tab-pill tab-inactive" data-view="payouts">Payouts</button>
+    <button class="tab-pill tab-inactive" data-view="profit">Profit <span id="profitTabCount" style="background:#8B3DFF;color:#fff;padding:2px 6px;border-radius:999px">₦0</span></button>
+    <button class="tab-pill tab-inactive" data-view="poolDrivers">Pool Drivers</button>
+    <button class="tab-pill tab-inactive" data-view="poolRiders">Pool Riders</button>
+    <button class="tab-pill tab-inactive" data-view="support">Support <span id="supportBadge" style="background:#1E1B2E;color:#fff;padding:2px 6px;border-radius:999px">0</span></button>
+    <select id="filterStatus" class="input" style="width:130px;margin-left:auto"><option value="all">All</option><option value="searching">Searching</option><option value="accepted">Accepted</option><option value="delivered">Delivered</option><option value="wallet">Wallet</option><option value="cash">Cash</option></select>
+  </div>
+
+  <div id="requestsView" class="card"><div style="overflow:auto"><table><thead><tr><th>Route</th><th>Offer</th><th>Pay</th><th>Status</th><th>People</th><th>Time</th><th></th></tr></thead><tbody id="requestsBody"></tbody></table></div></div>
+  <div id="driversView" class="card" style="display:none"><div style="display:flex;gap:8px;margin-bottom:12px"><input id="driverSearch" placeholder="Search driver..." class="input" style="flex:1"><button class="btn btn-ghost" onclick="renderDrivers()"><i class="fa-solid fa-rotate"></i></button></div><div id="driversBody"></div></div>
+  <div id="customersView" class="card" style="display:none"><div style="display:flex;gap:8px;margin-bottom:12px"><input id="customerSearch" placeholder="Search customer..." class="input" style="flex:1"><button class="btn btn-ghost" onclick="renderCustomers()"><i class="fa-solid fa-rotate"></i></button></div><div id="customersBody"></div></div>
+  <div id="poolDriversView" class="card" style="display:none"><div id="poolDriversBody"></div></div>
+  <div id="poolRidersView" class="card" style="display:none"><div id="poolRidersBody"></div></div>
+  <div id="salesView" class="card" style="display:none"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div style="font-weight:900">Sales Force</div><div style="display:flex;gap:8px"><input id="salesSearch" placeholder="Search..." class="input" style="width:200px"><button onclick="openSalesModal()" class="btn btn-violet"><i class="fa-solid fa-plus"></i> Add</button></div></div><div id="salesBody"></div></div>
+  <div id="walletsView" class="card" style="display:none"><div style="display:flex;gap:8px;margin-bottom:12px"><input id="walletSearch" placeholder="Search..." class="input" style="flex:1"></div><div style="overflow:auto"><table><thead><tr><th>ID</th><th>Email</th><th>Type</th><th>Main</th><th>Bonus</th><th>Total</th><th></th></tr></thead><tbody id="walletTable"></tbody></table></div></div>
+  <div id="payoutsView" class="card" style="display:none"><div style="overflow:auto"><table><thead><tr><th>Date</th><th>Email</th><th>Amount</th><th>Bank</th><th>Account</th><th>Name</th><th>Status</th><th></th></tr></thead><tbody id="payoutTable"></tbody></table></div></div>
+  <div id="profitView" class="card" style="display:none"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div><div style="font-weight:900">Commission / Profit</div><div style="font-size:11px;color:#8B8BA7">Commission paid by service providers</div></div><div style="display:flex;gap:8px"><input id="profitSearch" placeholder="Search..." class="input" style="width:200px"><select id="profitFilter" class="input" style="width:120px"><option value="all">All Time</option><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option></select></div></div><div class="stat-grid" style="margin-bottom:14px"><div class="stat-box" style="background:#EDE9FE;border-color:#DDD6FE"><div class="kpi" style="color:#5B21B6">Total Profit</div><div id="profitTotal" style="font-weight:900;font-size:22px;color:#5B21B6">₦0</div></div><div class="stat-box"><div class="kpi">From Deliveries</div><div id="profitDeliveries" style="font-weight:900;font-size:18px">₦0</div></div><div class="stat-box"><div class="kpi">From Wallet</div><div id="profitWallet" style="font-weight:900;font-size:18px">₦0</div></div><div class="stat-box"><div class="kpi">Transactions</div><div id="profitCount" style="font-weight:900;font-size:18px">0</div></div></div><div style="overflow:auto"><table><thead><tr><th>Date</th><th>Driver</th><th>Source</th><th>Order</th><th>Amount</th><th>Commission</th><th>Type</th></tr></thead><tbody id="profitTable"></tbody></table></div></div>
+  <div id="supportView" class="card" style="display:none;padding:0;overflow:hidden"><div style="padding:12px;display:flex;gap:8px;align-items:center;background:#FAF8FF;border-bottom:1px solid #EEE8FF"><div style="font-weight:800;font-size:12px">Support</div><div id="supportTypeCount" style="font-size:10px;color:#8B8BA7"></div><div style="margin-left:auto;display:flex;gap:6px"><button id="filterAll" class="btn btn-violet" style="font-size:10px" onclick="setSupportFilter('all')">ALL</button><button id="filterDriver" class="btn btn-ghost" style="font-size:10px" onclick="setSupportFilter('driver')">DRIVERS</button><button id="filterCustomer" class="btn btn-ghost" style="font-size:10px" onclick="setSupportFilter('customer')">CUSTOMERS</button></div></div><div class="support-layout"><div class="support-list"><div style="padding:12px"><input id="supportSearch" placeholder="Search..." class="input"></div><div id="supportList" style="flex:1;overflow:auto"></div></div><div class="support-chat"><div id="noChatSelected" style="flex:1;display:grid;place-items:center;color:#9AA0B6;padding:20px">Select chat</div><div id="chatActive" style="display:none;flex:1;flex-direction:column"><div style="padding:12px;border-bottom:1px solid #EEE8FF;display:flex;justify-content:space-between"><div><div id="chatDriverName" style="font-weight:900"></div><div id="chatDriverInfo" style="font-size:11px;color:#8B8BA7"></div></div></div><div id="chatMessages" style="flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column"></div><div style="padding:12px;border-top:1px solid #EEE8FF;display:flex;gap:8px"><textarea id="supportReplyInput" placeholder="Reply..." style="flex:1;border:1px solid #EDE7FF;border-radius:12px;padding:10px;resize:none;min-height:44px"></textarea><button id="sendReplyBtn" class="btn btn-violet" style="width:44px;height:44px;display:grid;place-items:center"><i class="fa-solid fa-paper-plane"></i></button></div></div></div></div></div>
+</div>
+
+<div id="walletModal" class="modal-bg"><div class="modal-card"><div style="display:flex;justify-content:space-between;margin-bottom:16px"><div style="font-weight:900">Wallet • <span id="walletDriverName"></span></div><button onclick="closeWalletModal()" style="width:32px;height:32px;border-radius:50%;background:#F6F3FF">✕</button></div><div style="background:#FAF8FF;border-radius:12px;padding:12px;margin-bottom:12px"><div id="walletCurrent" style="font-size:22px;font-weight:900">₦0</div><div id="walletBreakdown" style="font-size:11px;color:#8B8BA7"></div></div><div class="grid-2"><div><label class="kpi">Main</label><input id="walletAmountMain" type="number" class="input" style="margin-top:6px"></div><div><label class="kpi">Bonus</label><input id="walletAmountBonus" type="number" class="input" style="margin-top:6px"></div></div><select id="walletReason" class="input" style="margin-top:12px"><option value="topup">Top-up</option><option value="bonus">Bonus</option><option value="commission">Commission</option><option value="deduction">Deduction</option></select><div style="font-size:11px;color:#8B8BA7;margin-top:10px">New: <b id="walletNew">₦0</b></div><div style="display:flex;gap:8px;margin-top:16px"><button onclick="closeWalletModal()" class="btn btn-ghost" style="flex:1;justify-content:center">Cancel</button><button onclick="confirmWalletUpdate()" class="btn btn-violet" style="flex:1;justify-content:center">Update</button></div></div></div>
+<div id="salesModal" class="modal-bg"><div class="modal-card"><div style="display:flex;justify-content:space-between;margin-bottom:16px"><div style="font-weight:900" id="salesModalTitle">Add Agent</div><button onclick="closeSalesModal()" style="width:32px;height:32px;border-radius:50%;background:#F6F3FF">✕</button></div><div class="grid-2"><div><label class="kpi">Name</label><input id="salesName" class="input" style="margin-top:6px"></div><div><label class="kpi">Phone</label><input id="salesPhone" class="input" style="margin-top:6px"></div></div><div style="margin-top:10px"><label class="kpi">Email</label><input id="salesEmail" class="input" style="margin-top:6px"></div><div class="grid-2" style="margin-top:10px"><div><label class="kpi">Referral Code</label><input id="salesRefCode" class="input" style="margin-top:6px"></div><div><label class="kpi">Commission %</label><input id="salesCommRate" type="number" class="input" style="margin-top:6px" value="10"></div></div><div style="margin-top:10px"><label class="kpi">Region</label><input id="salesRegion" class="input" style="margin-top:6px"></div><div style="display:flex;gap:8px;margin-top:18px"><button onclick="closeSalesModal()" class="btn btn-ghost" style="flex:1;justify-content:center">Cancel</button><button onclick="saveSalesAgent()" class="btn btn-violet" style="flex:1;justify-content:center">Save</button></div></div></div>
+<div id="assignModal" class="modal-bg"><div class="modal-card"><div style="display:flex;justify-content:space-between;margin-bottom:16px"><div style="font-weight:900">Assign to Sales Agent</div><button onclick="closeAssignModal()" style="width:32px;height:32px;border-radius:50%;background:#F6F3FF">✕</button></div><div style="font-size:12px;color:#8B8BA7;margin-bottom:12px">Assign <b id="assignTargetName"></b> to a sales agent.</div><label class="kpi">Select Sales Agent</label><select id="assignSalesSelect" class="input" style="margin-top:6px"></select><div id="assignInfo" style="font-size:11px;color:#8B8BA7;margin-top:10px;background:#FAF8FF;padding:10px;border-radius:10px"></div><div style="display:flex;gap:8px;margin-top:18px"><button onclick="closeAssignModal()" class="btn btn-ghost" style="flex:1;justify-content:center">Cancel</button><button onclick="confirmAssign()" class="btn btn-violet" style="flex:1;justify-content:center"><i class="fa-solid fa-link"></i> Assign</button></div><button onclick="unassign()" class="btn btn-del" style="width:100%;margin-top:10px;justify-content:center">Remove Assignment</button></div></div>
+
+<!-- DRIVER DETAIL WITH JPG -->
+<div id="driverDetailModal" class="modal-bg"><div class="modal-card" style="max-width:640px"><div style="display:flex;justify-content:space-between;margin-bottom:16px"><div style="font-weight:900">Driver Profile</div><button onclick="document.getElementById('driverDetailModal').style.display='none'" style="width:32px;height:32px;border-radius:50%;background:#F6F3FF">✕</button></div><div id="driverDetailBody"></div></div></div>
+<div id="imageModal" class="modal-bg" style="z-index:1100"><div class="modal-card" style="max-width:700px;background:#fff"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><div style="font-weight:900" id="imageModalTitle">Image</div><button onclick="document.getElementById('imageModal').style.display='none'" style="width:32px;height:32px;border-radius:50%;background:#F6F3FF">✕</button></div><img id="imageModalImg" src="" style="width:100%;border-radius:14px;max-height:75vh;object-fit:contain;background:#FAF8FF;border:1px solid #EEE8FF"><div style="display:flex;gap:8px;margin-top:12px"><a id="imageModalLink" href="" target="_blank" class="btn btn-ghost" style="flex:1;justify-content:center"><i class="fa-solid fa-up-right-from-square"></i> Open Original</a><button onclick="document.getElementById('imageModal').style.display='none'" class="btn btn-violet" style="flex:1;justify-content:center">Close</button></div></div></div>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyBVIJq5napb_egiLdKhGtySZoPeLUkY9Q4",authDomain:"floot-delivery.firebaseapp.com",projectId:"floot-delivery",storageBucket:"floot-delivery.firebasestorage.app",messagingSenderId:"786230599434",appId:"1:786230599434:web:e1913bd8c2e69a7e1c64f3"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+let requests=[],drivers=[],customers=[],supportChats=[],selectedChat=null,chatUnsub=null,walletsMap=new Map(),poolDrivers=[],poolRiders=[],salesForce=[],payouts=[],walletPayouts=[],salesMap=new Map(),assignTarget={id:null,type:null};
+let commissions=[], commissionTransactions=[];
+
+function checkAuth(){ if(sessionStorage.getItem("floot_admin_ok")==="1"){ document.getElementById("authScreen").style.display="none"; document.getElementById("app").style.display="block"; initListeners(); } }
+checkAuth();
+document.getElementById("unlockBtn").onclick=()=>{ if(document.getElementById("codeInput").value.trim()==="Dumani"){ sessionStorage.setItem("floot_admin_ok","1"); document.getElementById("authScreen").style.display="none"; document.getElementById("app").style.display="block"; initListeners(); } else document.getElementById("codeErr").textContent="Wrong code"; };
+document.getElementById("codeInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("unlockBtn").click()});
+
+function isSalesDoc(data, source){
+  if(!data) return false;
+  if(source && source.startsWith("sales")) return true;
+  const role=(data.role||data.userType||data.type||"").toLowerCase();
+  if(["sales","salesforce","sales_force","sales_agent","marketer","agent"].includes(role)) return true;
+  if(data.isSalesAgent===true || data.isSalesForce===true) return true;
+  return false;
+}
+function upsertSales(docs, source){
+  docs.forEach(doc=>{ const data=doc.data(); if(!isSalesDoc(data,source) && !(source||"").startsWith("sales") ) { if(!(source||"").startsWith("sales")) return; } const existing=salesMap.get(doc.id)||{}; salesMap.set(doc.id,{...existing,id:doc.id,...data,_source:source}); });
+  rebuildSales();
+}
+function rebuildSales(){
+  customers.forEach(c=>{ if(isSalesDoc(c,c._source||"users")){ if(!salesMap.has(c.id)) salesMap.set(c.id,{id:c.id,...c,_source:c._source||"users",isFromUsers:true}); } });
+  salesForce=Array.from(salesMap.values());
+  renderSales(); renderStats(); updateAssignSelect();
+}
+function initListeners(){
+ db.collection("delivery_requests").orderBy("createdAt","desc").limit(150).onSnapshot(s=>{requests=s.docs.map(d=>({id:d.id,...d.data()}));renderRequests();renderStats(); renderProfit();});
+ db.collection("drivers").onSnapshot(s=>{drivers=s.docs.map(d=>({id:d.id,...d.data()}));renderDrivers();renderPoolDrivers();renderWallets();renderStats();renderSales(); renderProfit();});
+ db.collection("pool_drivers").onSnapshot(s=>{poolDrivers=s.docs.map(d=>({id:d.id,...d.data()}));renderPoolDrivers();});
+ db.collection("pool_riders").onSnapshot(s=>{poolRiders=s.docs.map(d=>({id:d.id,...d.data()}));renderPoolRiders();});
+ db.collection("sales_force").onSnapshot(s=> upsertSales(s.docs,"sales_force"));
+ db.collection("salesforce").onSnapshot(s=> upsertSales(s.docs,"salesforce"));
+ db.collection("sales_agents").onSnapshot(s=> upsertSales(s.docs,"sales_agents"), ()=>{});
+ db.collection("agents").onSnapshot(s=> upsertSales(s.docs,"agents"), ()=>{});
+ db.collection("wallets").onSnapshot(s=>{s.forEach(ds=>{walletsMap.set(ds.id,{...walletsMap.get(ds.id),...ds.data(),id:ds.id});});renderWallets();renderCustomers();renderSales();renderStats();});
+ db.collection("payouts").orderBy("createdAt","desc").limit(100).onSnapshot(s=>{payouts=s.docs.map(d=>({id:d.id,...d.data(),refPath:"payouts/"+d.id}));mergeAndRenderPayouts();});
+ db.collectionGroup("withdrawal_requests").orderBy("createdAt","desc").onSnapshot(s=>{walletPayouts=s.docs.map(d=>({id:d.id,...d.data(),refPath:d.ref.path,walletId:d.ref.path.split("/")[1]}));mergeAndRenderPayouts();},()=>{});
+ db.collection("customers").onSnapshot(s=>{const map=new Map(customers.map(c=>[c.id,c])); s.docs.forEach(d=>{map.set(d.id,{id:d.id,...d.data(),_source:"customers"})}); customers=Array.from(map.values()); renderCustomers(); rebuildSales(); renderStats();});
+ db.collection("users").onSnapshot(s=>{const map=new Map(customers.map(c=>[c.id,c])); s.docs.forEach(d=>{map.set(d.id,{id:d.id,...d.data(),_source:"users"})}); customers=Array.from(map.values()); renderCustomers(); rebuildSales(); renderStats();});
+ let driverChats=[],customerChats=[];
+ function mergeSupport(){supportChats=[...driverChats,...customerChats].sort((a,b)=> new Date(b.updatedAt||b.lastAt||0)-new Date(a.updatedAt||a.lastAt||0)); document.getElementById("supportCount").textContent=supportChats.length+" CHATS"; document.getElementById("supportBadge").textContent=supportChats.length; document.getElementById("supportTypeCount").textContent=`${driverChats.length} drivers • ${customerChats.length} customers`; renderSupportList();}
+ db.collection("support_chats").orderBy("updatedAt","desc").onSnapshot(s=>{driverChats=s.docs.map(d=>({id:d.id,...d.data(),_type:"driver"}));mergeSupport();});
+ db.collection("customer_support_chats").orderBy("updatedAt","desc").onSnapshot(s=>{customerChats=s.docs.map(d=>({id:d.id,...d.data(),_type:"customer"}));mergeSupport();});
+ db.collection("commissions").orderBy("createdAt","desc").limit(200).onSnapshot(s=>{ commissions=s.docs.map(d=>({id:d.id,...d.data(),_source:"commissions"})); renderProfit(); }, ()=>{ renderProfit(); });
+ db.collection("platform_fees").orderBy("createdAt","desc").limit(200).onSnapshot(s=>{ const fees=s.docs.map(d=>({id:d.id,...d.data(),_source:"platform_fees"})); commissions=[...commissions.filter(c=>c._source!=="platform_fees"), ...fees]; renderProfit(); }, ()=>{});
+ db.collectionGroup("transactions").where("type","in",["commission","platform_fee","service_fee"]).orderBy("createdAt","desc").limit(200).onSnapshot(s=>{ commissionTransactions=s.docs.map(d=>({id:d.id,...d.data()})); renderProfit(); }, ()=>{});
+ db.collection("wallet_transactions").where("reason","in",["commission","deduction","platform_fee"]).orderBy("createdAt","desc").limit(200).onSnapshot(s=>{ const tx=s.docs.map(d=>({id:d.id,...d.data(),_source:"wallet_transactions"})); commissionTransactions=[...commissionTransactions.filter(t=>t._source!=="wallet_transactions"), ...tx]; renderProfit(); }, ()=>{});
+}
+let allPayoutsCombined=[];
+function mergeAndRenderPayouts(){ allPayoutsCombined=[...payouts,...walletPayouts].sort((a,b)=> new Date(b.createdAt||0)-new Date(a.createdAt||0)); document.getElementById("statPayout").textContent=allPayoutsCombined.filter(p=>(p.status||"pending")==="pending").length; renderPayouts(); }
+function renderStats(){
+ document.getElementById("statCustomers").textContent=customers.length;
+ document.getElementById("statDrivers").textContent=drivers.length;
+ document.getElementById("statSales").textContent=salesForce.length;
+ document.getElementById("salesTabCount").textContent=salesForce.length;
+ document.getElementById("statReq").textContent=requests.length;
+ document.getElementById("statPay").textContent=requests.filter(r=>(r.paymentMethod||"cash")==="wallet").length+" / "+requests.filter(r=>(r.paymentMethod||"cash")==="cash").length;
+ let total=0; walletsMap.forEach(v=>{total+=Number(v.balance||0)+Number(v.bonusBalance||0);}); drivers.forEach(d=>{if(!walletsMap.has(d.id)) total+=Number(d.walletBalance||0);});
+ document.getElementById("totalBalHeader").textContent="TOTAL ₦"+total.toLocaleString();
+}
+function renderRequests(){
+ const status=document.getElementById("filterStatus").value;
+ let filtered=requests;
+ if(status==="all") filtered=requests;
+ else if(status==="wallet") filtered=requests.filter(r=>(r.paymentMethod||"cash")==="wallet");
+ else if(status==="cash") filtered=requests.filter(r=>(r.paymentMethod||"cash")==="cash");
+ else filtered=requests.filter(r=>(r.status||"").toLowerCase()===status);
+ const body=document.getElementById("requestsBody");
+ if(!filtered.length){body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#9AA0B6">No requests</td></tr>';return;}
+ body.innerHTML=filtered.map(r=>{const st=(r.status||"searching").toLowerCase(); const pay=r.paymentMethod||"cash"; return `<tr><td><b>${r.pickup||""} → ${r.dropoff||""}</b><div style="font-size:11px;color:#8B8BA7">${r.item||"Package"}</div></td><td>₦${Number(r.offerAmount||r.offer||0).toLocaleString()}</td><td><span class="badge ${pay==="wallet"?"b-wallet":"b-cash"}">${pay.toUpperCase()}</span></td><td><span class="badge b-${st}">${st.toUpperCase()}</span></td><td style="font-size:11px">${r.driverName||"—"}<br>${r.customerName||"—"}</td><td style="font-size:11px;color:#8B8BA7">${r.createdAt?.seconds?new Date(r.createdAt.seconds*1000).toLocaleTimeString():new Date(r.createdAt||Date.now()).toLocaleTimeString()}</td><td><button onclick="deleteRequest('${r.id}')" class="btn btn-del" style="font-size:10px"><i class="fa-solid fa-trash"></i></button></td></tr>`;}).join("");
+}
+function computeReferredPeople(salesDoc){
+  const code=(salesDoc.referralCode||salesDoc.code||"").toLowerCase();
+  const id=salesDoc.id; const email=(salesDoc.email||"").toLowerCase();
+  let referred=[];
+  [...customers,...drivers].forEach(p=>{
+    const refBy=(p.referredBy||p.referralCode||p.referredByCode||p.salesRef||p.salesCode||"").toString().toLowerCase();
+    const refId=(p.referredById||p.salesId||p.salesAgentId||"").toString();
+    const refEmail=(p.referredByEmail||p.salesEmail||"").toString().toLowerCase();
+    if((code && refBy===code) || (id && refId===id) || (email && refEmail===email)) referred.push(p);
+  });
+  return referred;
+}
+function renderSales(){
+ const q=(document.getElementById("salesSearch")?.value||"").toLowerCase();
+ const body=document.getElementById("salesBody");
+ let filtered=salesForce.filter(s=>!q|| (s.name||"").toLowerCase().includes(q)|| (s.email||"").toLowerCase().includes(q)|| (s.phone||"").toLowerCase().includes(q)|| (s.referralCode||s.code||"").toLowerCase().includes(q));
+ if(!filtered.length){body.innerHTML=`<div style="text-align:center;padding:30px;color:#9AA0B6">No sales agents<br><button onclick="openSalesModal()" class="btn btn-violet" style="margin-top:12px">Add Agent</button></div>`;return;}
+ body.innerHTML=filtered.map(s=>{
+   const w=walletsMap.get(s.id)||{}; const main=Number(w.balance||s.walletBalance||0); const referred=computeReferredPeople(s);
+   const totalRef=Number(s.totalReferrals||referred.length); const earn=Number(s.totalEarnings||0);
+   const isActive=s.status!=="suspended" && s.isActive!==false;
+   return `<div style="padding:14px;border:1px solid #EEE8FF;border-radius:14px;margin-bottom:12px;display:flex;gap:14px">
+     <div style="width:44px;height:44px;border-radius:12px;background:#1E1B2E;display:grid;place-items:center;font-weight:900;color:#fff;flex-shrink:0">${(s.name||'S')[0]}</div>
+     <div style="flex:1"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b>${s.name||s.id.slice(0,12)}</b><span class="badge ${isActive?'b-accepted':'b-searching'}">${isActive?'ACTIVE':'SUSPENDED'}</span><span style="font-size:10px;background:#F6F3FF;padding:3px 8px;border-radius:999px">${s.referralCode||s.code||'NO-CODE'}</span></div>
+       <div style="font-size:11px;color:#6B6B86;margin-top:4px">${s.email||""} • ${s.phone||""} • ${s.region||""}</div>
+       <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><span style="font-size:11px;background:#F6F3FF;padding:4px 10px;border-radius:999px">${totalRef} assigned • ${referred.length} live</span><span style="font-size:11px;background:#F6F3FF;padding:4px 10px;border-radius:999px">₦${earn.toLocaleString()} • ${s.commissionRate||10}%</span><span style="font-size:11px;background:#1E1B2E;color:#fff;padding:4px 10px;border-radius:999px">₦${main.toLocaleString()}</span></div></div>
+     <div style="display:flex;flex-direction:column;gap:6px"><button onclick="openWalletModal('${s.id}')" class="btn btn-violet" style="font-size:11px">Pay</button><button onclick="editSalesAgent('${s.id}')" class="btn btn-ghost" style="font-size:11px">Edit</button><button onclick="openAssignBulkModal('${s.id}')" class="btn btn-ghost" style="font-size:11px"><i class="fa-solid fa-user-plus"></i> Assign</button><button onclick="toggleSalesStatus('${s.id}')" class="btn ${isActive?'btn-del':'btn-green'}" style="font-size:11px">${isActive?'Suspend':'Active'}</button><button onclick="deleteSalesFull('${s.id}')" class="btn btn-del" style="font-size:11px">Delete</button></div>
+   </div>`;
+ }).join("");
+}
+
+// --- DRIVER IMAGE HELPERS ---
+function getDriverImage(d){
+  return d.profileImage||d.profilePicture||d.photoURL||d.avatar||d.image||d.selfie||d.profilePic||d.photo||"";
+}
+function getDriverDocs(d){
+  const docs=[];
+  const candidates=[
+    {key:"licenseImage", label:"License"},
+    {key:"license", label:"License"},
+    {key:"idImage", label:"ID Card"},
+    {key:"idCard", label:"ID Card"},
+    {key:"document", label:"Document"},
+    {key:"documentImage", label:"Document"},
+    {key:"ninImage", label:"NIN"},
+    {key:"nin", label:"NIN"},
+    {key:"vehicleImage", label:"Vehicle"},
+    {key:"bikeImage", label:"Bike"},
+    {key:"insuranceImage", label:"Insurance"},
+    {key:"proofImage", label:"Proof"},
+  ];
+  candidates.forEach(c=>{
+    const v=d[c.key];
+    if(v && typeof v==="string" && (v.startsWith("http")||v.startsWith("data:image")) ) docs.push({label:c.label, url:v, key:c.key});
+    if(Array.isArray(v)) v.forEach((url,i)=>{ if(typeof url==="string"&&url.startsWith("http")) docs.push({label:c.label+" "+(i+1), url, key:c.key}); });
+  });
+  // also check documents array/object
+  if(d.documents && typeof d.documents==="object"){
+    Object.entries(d.documents).forEach(([k,v])=>{
+      if(typeof v==="string" && v.startsWith("http")) docs.push({label:k, url:v, key:k});
+      if(v && typeof v==="object" && v.url) docs.push({label:k, url:v.url, key:k});
+    });
+  }
+  if(d.licenseUrl) docs.push({label:"License", url:d.licenseUrl, key:"licenseUrl"});
+  if(d.idImageUrl) docs.push({label:"ID", url:d.idImageUrl, key:"idImageUrl"});
+  return docs;
+}
+window.openImageModal=(url, title)=>{
+  document.getElementById("imageModalImg").src=url;
+  document.getElementById("imageModalTitle").textContent=title||"Image";
+  document.getElementById("imageModalLink").href=url;
+  document.getElementById("imageModal").style.display="flex";
+};
+
+function renderDrivers(){
+ const q=document.getElementById("driverSearch").value.toLowerCase();
+ const filtered=drivers.filter(d=>!q|| (d.name||"").toLowerCase().includes(q)|| (d.email||"").toLowerCase().includes(q));
+ const body=document.getElementById("driversBody");
+ if(!filtered.length){body.innerHTML='<div style="text-align:center;padding:20px;color:#9AA0B6">No drivers</div>';return;}
+ body.innerHTML=filtered.map(d=>{
+   const w=walletsMap.get(d.id)||{}; const main=Number(w.balance||d.walletBalance||0);
+   const isSuspended=d.status==="suspended"||d.isSuspended===true||d.isActive===false;
+   const img=getDriverImage(d);
+   const docs=getDriverDocs(d);
+   const assignedSales = salesForce.find(s=> { const code=(s.referralCode||"").toLowerCase(); const refBy=(d.referredBy||"").toLowerCase(); const refId=(d.referredById||d.salesId||""); return (code && refBy===code) || refId===s.id; });
+   return `<div style="padding:14px;border:1px solid ${isSuspended?'#FFD6D6':'#EEE8FF'};border-radius:14px;margin-bottom:10px;background:${isSuspended?'#FFF1F1':'#fff'};display:flex;gap:12px;align-items:flex-start">
+     ${img ? `<img src="${img}" class="img-thumb" onclick="openImageModal('${img}','${(d.name||'Driver').replace(/'/g,'')} - Profile')" style="cursor:pointer;width:56px;height:56px">` : `<div style="width:56px;height:56px;border-radius:12px;background:#F6F3FF;display:grid;place-items:center;font-weight:900;color:#8B3DFF">${(d.name||'D')[0]}</div>`}
+     <div style="flex:1">
+       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>${d.name||d.id.slice(0,10)}</b>${isSuspended?'<span class="badge b-suspended">SUSPENDED</span>':'<span class="badge b-accepted">ACTIVE</span>'}<span style="font-size:10px;color:#8B8BA7">${d.isOnline?'🟢 Online':'⚪ Offline'}</span></div>
+       <div style="font-size:11px;color:#8B8BA7;margin-top:2px">${d.email||""} • ${d.phone||""}</div>
+       <div style="font-size:11px;margin-top:4px">Wallet: <b>₦${main.toLocaleString()}</b> ${assignedSales?`• <span style="color:#8B3DFF">${assignedSales.name}</span>`:`• <span style="color:#9AA0B6">Unassigned</span>`}</div>
+       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+         ${docs.slice(0,4).map(doc=>`<button onclick="openImageModal('${doc.url}','${doc.label}')" class="btn btn-ghost" style="font-size:10px"><i class="fa-solid fa-id-card"></i> ${doc.label}</button>`).join('')}
+         ${docs.length>4?`<span style="font-size:10px;color:#8B8BA7">+${docs.length-4} docs</span>`:''}
+         ${!docs.length?'<span style="font-size:10px;color:#9AA0B6">No documents uploaded</span>':''}
+       </div>
+     </div>
+     <div style="display:flex;flex-direction:column;gap:6px;min-width:110px">
+       <button onclick="viewDriverFull('${d.id}')" class="btn btn-violet" style="font-size:11px;justify-content:center"><i class="fa-solid fa-eye"></i> View / Docs</button>
+       <button onclick="openAssignModal('${d.id}','driver')" class="btn btn-ghost" style="font-size:11px;justify-content:center"><i class="fa-solid fa-link"></i> Assign</button>
+       <button onclick="toggleDriverStatus('${d.id}')" class="btn ${isSuspended?'btn-green':'btn-del'}" style="font-size:11px;justify-content:center"><i class="fa-solid ${isSuspended?'fa-play':'fa-ban'}"></i> ${isSuspended?'Activate':'Suspend'}</button>
+       <button onclick="deactivateDriver('${d.id}')" class="btn btn-del" style="font-size:11px;justify-content:center;${isSuspended||d.status==='deactivated'?'display:none':''}"><i class="fa-solid fa-user-slash"></i> Deactivate</button>
+       <button onclick="openWalletModal('${d.id}')" class="btn btn-ghost" style="font-size:11px;justify-content:center"><i class="fa-solid fa-wallet"></i> Wallet</button>
+       <button onclick="deleteDriver('${d.id}')" class="btn btn-del" style="font-size:11px;justify-content:center"><i class="fa-solid fa-trash"></i> Delete</button>
+     </div>
+   </div>`;
+ }).join("");
+}
+
+window.viewDriverFull=(id)=>{
+  const d=drivers.find(x=>x.id===id);
+  if(!d) return;
+  const img=getDriverImage(d);
+  const docs=getDriverDocs(d);
+  const w=walletsMap.get(id)||{};
+  const main=Number(w.balance||d.walletBalance||0);
+  const isSuspended=d.status==="suspended"||d.isSuspended===true;
+  document.getElementById("driverDetailBody").innerHTML=`
+    <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:16px">
+      ${img?`<img src="${img}" class="img-preview" style="width:120px;height:120px;cursor:pointer" onclick="openImageModal('${img}','Profile')">`:`<div style="width:120px;height:120px;border-radius:14px;background:#F6F3FF;display:grid;place-items:center;font-weight:900;font-size:32px;color:#8B3DFF">${(d.name||'D')[0]}</div>`}
+      <div style="flex:1">
+        <div style="font-weight:900;font-size:18px">${d.name||"Unnamed Driver"} ${isSuspended?'<span class="badge b-suspended">SUSPENDED</span>':'<span class="badge b-accepted">ACTIVE</span>'}</div>
+        <div style="font-size:12px;color:#6B6B86;margin-top:4px">${d.email||""}</div>
+        <div style="font-size:12px;color:#6B6B86">${d.phone||""} • ${d.vehicleType||d.vehicle||""}</div>
+        <div style="margin-top:8px"><b>₦${main.toLocaleString()}</b> wallet • ${d.isOnline?'🟢 Online':'⚪ Offline'}</div>
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+          <button onclick="toggleDriverStatus('${id}')" class="btn ${isSuspended?'btn-green':'btn-del'}">${isSuspended?'Activate':'Suspend'}</button><button onclick="deactivateDriver('${id}')" class="btn btn-del" style="margin-left:6px">Deactivate</button>
+          <button onclick="deleteDriver('${id}')" class="btn btn-del">Delete Driver</button>
+        </div>
+      </div>
+    </div>
+    <div style="font-weight:800;font-size:12px;margin-bottom:8px">Documents & JPG Images (${docs.length})</div>
+    ${docs.length?`<div class="doc-grid">${docs.map(doc=>`
+      <div style="border:1px solid #EEE8FF;border-radius:12px;overflow:hidden;background:#FAF8FF">
+        <img src="${doc.url}" style="width:100%;height:140px;object-fit:cover;cursor:pointer" onclick="openImageModal('${doc.url}','${doc.label}')">
+        <div style="padding:8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;font-weight:800">${doc.label}</span><button onclick="openImageModal('${doc.url}','${doc.label}')" class="btn btn-ghost" style="font-size:10px">View JPG</button></div>
+      </div>`).join('')}</div>`:`<div style="padding:20px;text-align:center;color:#9AA0B6;background:#FAF8FF;border-radius:12px">No JPG documents found for this driver.<br><span style="font-size:11px">Check fields: profileImage, licenseImage, idImage, documents{}</span></div>`}
+    <div style="margin-top:16px;font-weight:800;font-size:12px">Raw Data</div>
+    <div style="max-height:200px;overflow:auto;background:#FAF8FF;border:1px solid #EEE8FF;border-radius:10px;padding:10px;margin-top:8px">${Object.entries(d).map(([k,v])=>`<div style="font-size:10px;margin-bottom:4px"><span style="color:#8B3DFF">${k}:</span> ${typeof v==='object'?JSON.stringify(v).slice(0,300):String(v).slice(0,200)}</div>`).join('')}</div>
+  `;
+  document.getElementById("driverDetailModal").style.display="flex";
+};
+
+// --- FIXED: SUSPEND / DEACTIVATE / ACTIVATE DRIVER ---
+window.toggleDriverStatus=async(id, forcedAction=null)=>{
+  const d=drivers.find(x=>x.id===id);
+  if(!d) return alert("Driver not found");
+  const current = (d.status||"").toLowerCase();
+  const isSuspended = current==="suspended" || d.isSuspended===true || d.isBlocked===true && !d.isDeactivated;
+  const isDeactivated = current==="deactivated" || d.isDeactivated===true;
+  
+  // Determine target action
+  let action = forcedAction;
+  if(!action){
+    if(isDeactivated || isSuspended) action="activate";
+    else action="suspend";
+  }
+  
+  if(action==="activate"){
+    if(!confirm(`Activate ${d.name||d.email||id}? Driver will be able to receive orders again.`)) return;
+    try{
+      const payload={
+        status:"active",
+        isSuspended:false,
+        isActive:true,
+        isBlocked:false,
+        isDeactivated:false,
+        suspendedAt: firebase.firestore.FieldValue.delete(),
+        deactivatedAt: firebase.firestore.FieldValue.delete(),
+        blockedAt: firebase.firestore.FieldValue.delete(),
+        reactivatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        reactivatedBy:"admin",
+        isOnline:false, // force offline, must go online again
+        lastStatusChangeAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastStatusChangeBy:"admin"
+      };
+      await db.collection("drivers").doc(id).set(payload,{merge:true});
+      await db.collection("users").doc(id).set({status:"active",isSuspended:false,isBlocked:false,isDeactivated:false,isActive:true},{merge:true}).catch(()=>{});
+      // also unblock in customers collection if exists
+      await db.collection("customers").doc(id).set({status:"active",isSuspended:false,isBlocked:false},{merge:true}).catch(()=>{});
+      alert("✅ Driver activated - can now go online");
+    }catch(e){alert(e.message);}
+    return;
+  }
+  
+  if(action==="suspend"){
+    if(!confirm(`Suspend ${d.name||d.email||id}?\nDriver will be BLOCKED from receiving orders and logged out.\nHe can be activated later.`)) return;
+    try{
+      const payload={
+        status:"suspended",
+        isSuspended:true,
+        isActive:false,
+        isBlocked:true,
+        isDeactivated:false,
+        isOnline:false,
+        suspendedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        suspendedBy:"admin",
+        blockedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastStatusChangeAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastStatusChangeBy:"admin",
+        suspensionReason:"Suspended by admin"
+      };
+      await db.collection("drivers").doc(id).set(payload,{merge:true});
+      await db.collection("users").doc(id).set({status:"suspended",isSuspended:true,isBlocked:true,isActive:false},{merge:true}).catch(()=>{});
+      await db.collection("customers").doc(id).set({status:"suspended",isSuspended:true,isBlocked:true},{merge:true}).catch(()=>{});
+      // cancel any searching requests assigned to this driver? optional
+      alert("🚫 Driver suspended - blocked from orders");
+    }catch(e){alert(e.message);}
+    return;
+  }
+  
+  if(action==="deactivate"){
+    if(!confirm(`DEACTIVATE ${d.name||d.email||id}?\nThis is stronger than suspend - driver account will be disabled completely.\nHe cannot login until activated.`)) return;
+    if(!confirm(`Second confirm: Deactivate ${id}?`)) return;
+    try{
+      const payload={
+        status:"deactivated",
+        isSuspended:false,
+        isActive:false,
+        isBlocked:true,
+        isDeactivated:true,
+        isOnline:false,
+        deactivatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        deactivatedBy:"admin",
+        blockedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastStatusChangeAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastStatusChangeBy:"admin"
+      };
+      await db.collection("drivers").doc(id).set(payload,{merge:true});
+      await db.collection("users").doc(id).set({status:"deactivated",isDeactivated:true,isBlocked:true,isActive:false,isSuspended:false},{merge:true}).catch(()=>{});
+      await db.collection("customers").doc(id).set({status:"deactivated",isDeactivated:true,isBlocked:true},{merge:true}).catch(()=>{});
+      alert("⛔ Driver deactivated - fully disabled");
+    }catch(e){alert(e.message);}
+    return;
+  }
+};
+
+window.deactivateDriver=async(id)=>{ return window.toggleDriverStatus(id,"deactivate"); };
+window.activateDriver=async(id)=>{ return window.toggleDriverStatus(id,"activate"); };
+window.suspendDriver=async(id)=>{ return window.toggleDriverStatus(id,"suspend"); };
+
+window.deleteDriver=async(id)=>{
+  const d=drivers.find(x=>x.id===id);
+  if(!confirm(`DELETE driver ${d?.name||d?.email||id} permanently? This cannot be undone.`)) return;
+  if(!confirm(`Second confirm: Delete ${id}? Wallets and auth will also be removed.`)) return;
+  try{
+    const batch=db.batch();
+    batch.delete(db.collection("drivers").doc(id));
+    batch.delete(db.collection("wallets").doc(id));
+    await batch.commit();
+    await db.collection("users").doc(id).set({deleted:true, deletedAt:firebase.firestore.FieldValue.serverTimestamp(), status:"deleted", isActive:false, isBlocked:true},{merge:true}).catch(()=>{});
+    await db.collection("customers").doc(id).delete().catch(()=>{});
+    alert("Driver deleted");
+  }catch(e){alert(e.message);}
+};
+
+function renderCustomers(){
+ const q=document.getElementById("customerSearch")?.value.toLowerCase()||"";
+ const body=document.getElementById("customersBody");
+ let filtered=customers.filter(c=>!q|| (c.name||"").toLowerCase().includes(q)|| (c.email||"").toLowerCase().includes(q));
+ body.innerHTML=filtered.slice(0,150).map(c=>{
+   const w=walletsMap.get(c.id)||{}; const tot=Number(w.balance||0)+Number(w.bonusBalance||0);
+   const isSales = isSalesDoc(c, c._source);
+   const img=c.profileImage||c.photoURL||"";
+   return `<div style="padding:12px;border:1px solid ${isSales?'#DDD6FE':'#EEE8FF'};border-radius:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;background:${isSales?'#FAF5FF':'#fff'}">
+   <div style="display:flex;gap:10px;align-items:center"><div>${img?`<img src="${img}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;cursor:pointer" onclick="openImageModal('${img}','Customer')">`:`<div style="width:36px;height:36px;border-radius:10px;background:#F6F3FF;display:grid;place-items:center;font-weight:800;color:#8B3DFF">${(c.name||'C')[0]}</div>`}</div><div><b>${c.name||"Unnamed"} ${isSales?'<span style="font-size:9px;background:#8B3DFF;color:#fff;padding:2px 6px;border-radius:999px">SALES</span>':''}</b><div style="font-size:11px;color:#8B8BA7">${c.email||""} • ${c.phone||""}</div></div></div>
+   <div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px">₦${tot.toLocaleString()}</span><button onclick="viewDriverFull('${c.id}')" class="btn btn-ghost" style="font-size:10px"><i class="fa-solid fa-eye"></i></button></div></div>`;
+ }).join("");
+}
+function renderWallets(){
+ const q=(document.getElementById("walletSearch")?.value||"").toLowerCase();
+ const tbody=document.getElementById("walletTable");
+ let rows=[]; let allIds=new Set([...walletsMap.keys(), ...drivers.map(d=>d.id), ...customers.map(c=>c.id)]);
+ allIds.forEach(id=>{
+   const w=walletsMap.get(id)||{}; const d=drivers.find(x=>x.id===id)||{}; const c=customers.find(x=>x.id===id)||{}; const s=salesForce.find(x=>x.id===id)||{};
+   const main=Number(w.balance||d.walletBalance||c.walletBalance||s.walletBalance||0); const bonus=Number(w.bonusBalance||0); const tot=main+bonus; const email=w.email||d.email||c.email||s.email||id;
+   if(q && !id.toLowerCase().includes(q) && !email.toLowerCase().includes(q)) return;
+   if(tot>0 || w.balance!=undefined || d.walletBalance!=undefined || s.email){ rows.push({id,email,type:d.email?"Driver":c.email?"Customer":s.email?"Sales":"Wallet",main,bonus,tot}); }
+ });
+ tbody.innerHTML=rows.sort((a,b)=>b.tot-a.tot).map(r=>`<tr><td title="${r.id}" style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${r.id.slice(0,18)}</td><td>${r.email}</td><td><span class="badge b-cash" style="font-size:9px">${r.type}</span></td><td>₦${r.main.toLocaleString()}</td><td>₦${r.bonus.toLocaleString()}</td><td><b>₦${r.tot.toLocaleString()}</b></td><td style="display:flex;gap:5px"><button class="btn btn-ghost" style="font-size:10px" onclick="openWalletModal('${r.id}')">Wallet</button><button class="btn btn-del" style="font-size:10px" onclick="deleteWalletProfile('${r.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join("")||'<tr><td colspan="7" style="color:#9AA0B6">No wallets</td></tr>';
+}
+window.deleteWalletProfile=async(id)=>{ if(!confirm(`Delete wallet ${id}?`)) return; try{ const batch=db.batch(); batch.delete(db.collection("wallets").doc(id)); await batch.commit(); alert("Deleted"); }catch(e){alert(e.message);} };
+function renderPayouts(){
+ const tbody=document.getElementById("payoutTable");
+ if(!allPayoutsCombined.length){tbody.innerHTML='<tr><td colspan="8" style="color:#9AA0B6">No payouts</td></tr>';return;}
+ tbody.innerHTML=allPayoutsCombined.map(p=>{const isPending=(p.status||"pending")==="pending"; const date=p.createdAt?(p.createdAt.seconds?new Date(p.createdAt.seconds*1000).toLocaleDateString():new Date(p.createdAt).toLocaleDateString()):""; return `<tr><td style="font-size:10px">${date}</td><td style="font-size:11px">${(p.email||p.walletId||'').slice(0,22)}</td><td><b>₦${Number(p.amount||0).toLocaleString()}</b></td><td>${p.bankName||''}</td><td>${p.accountNumber||''}</td><td>${p.accountName||''}</td><td><span class="badge ${isPending?'b-searching':'b-accepted'}">${(p.status||'pending').toUpperCase()}</span></td><td>${isPending?`<button class="btn btn-green" style="font-size:10px" onclick="approvePayout('${p.refPath}')">Success</button> <button class="btn btn-del" style="font-size:9px" onclick="rejectPayout('${p.refPath}')">Fail</button>`:`<span style="font-size:10px">Done</span>`}</td></tr>`;}).join("");
+}
+async function approvePayout(refPath){ if(!confirm("Mark Successful?")) return; try{ const docRef=db.doc(refPath); const snap=await docRef.get(); const data=snap.data(); const amount=Number(data.amount||0); const walletId=refPath.split("/")[1]; const walletRef=db.collection("wallets").doc(walletId); const wSnap=await walletRef.get(); const mainBal=wSnap.exists?Number(wSnap.data().balance||0):0; const batch=db.batch(); if(wSnap.exists) batch.set(walletRef,{balance:mainBal-amount},{merge:true}); batch.set(docRef,{status:"successful",debited:true,successfulAt:new Date().toISOString()},{merge:true}); await batch.commit(); alert("Successful"); }catch(e){alert(e.message);} }
+async function rejectPayout(refPath){ await db.doc(refPath).set({status:"failed",failedAt:new Date().toISOString()},{merge:true}); }
+function renderPoolDrivers(){ document.getElementById("poolDriversBody").innerHTML=poolDrivers.map(d=>`<div style="padding:10px;border:1px solid #EEE8FF;border-radius:12px;margin-bottom:6px">${d.name||d.id}</div>`).join(""); }
+function renderPoolRiders(){ document.getElementById("poolRidersBody").innerHTML=poolRiders.map(r=>`<div style="padding:10px;border:1px solid #EEE8FF;border-radius:12px;margin-bottom:6px">${r.name||r.id}</div>`).join(""); }
+
+function renderProfit(){
+  const tbody=document.getElementById("profitTable");
+  if(!tbody) return;
+  const q=(document.getElementById("profitSearch")?.value||"").toLowerCase();
+  const filter=document.getElementById("profitFilter")?.value||"all";
+  let now=new Date(); let start=null;
+  if(filter==="today") start=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  else if(filter==="week"){ start=new Date(); start.setDate(now.getDate()-7); }
+  else if(filter==="month"){ start=new Date(now.getFullYear(),now.getMonth(),1); }
+  let list=[];
+  requests.forEach(r=>{
+    const comm=Number(r.commission||r.commissionAmount||r.platformFee||r.platform_fee||r.serviceFee||r.flootCommission||r.profit||0);
+    if(comm>0){
+      const date=r.completedAt||r.deliveredAt||r.createdAt;
+      let d=date?.seconds?new Date(date.seconds*1000): date?new Date(date): new Date();
+      list.push({date:d, driver:r.driverName||r.driverEmail||"Driver", email:r.driverEmail||"", source:`${r.pickup||""} → ${r.dropoff||""}`, ref:r.id, amount:Number(r.offerAmount||r.offer||r.price||0), commission:comm, type:"Delivery", raw:r});
+    }
+  });
+  commissions.forEach(c=>{
+    const d=c.createdAt?.seconds?new Date(c.createdAt.seconds*1000): c.createdAt?new Date(c.createdAt): new Date();
+    list.push({date:d, driver:c.driverName||c.driverEmail||c.email||"Driver", email:c.driverEmail||c.email||"", source:c.reason||c.description||"Commission", ref:c.requestId||c.id.slice(0,8), amount:Number(c.orderAmount||c.amount||0), commission:Number(c.commission||c.amount||0), type:c._source||"Commission", raw:c});
+  });
+  commissionTransactions.forEach(t=>{
+    const d=t.createdAt?.seconds?new Date(t.createdAt.seconds*1000): t.createdAt?new Date(t.createdAt): new Date();
+    list.push({date:d, driver:t.driverEmail||t.email||"System", email:t.driverEmail||t.email||"", source:t.reason||t.type||"Wallet", ref:t.requestId||t.id.slice(0,8), amount:Number(t.amount||0), commission:Number(t.commission||t.amount||Math.abs(t.amount||0)), type:t.type||"Deduction", raw:t});
+  });
+  let filtered=list.filter(item=>{
+    if(start && item.date<start) return false;
+    if(q && !((item.driver||"").toLowerCase().includes(q) || (item.email||"").toLowerCase().includes(q) || (item.ref||"").toLowerCase().includes(q))) return false;
+    return true;
+  }).sort((a,b)=>b.date-a.date);
+  const total=filtered.reduce((s,x)=>s+x.commission,0);
+  const fromDel=filtered.filter(x=>x.type==="Delivery").reduce((s,x)=>s+x.commission,0);
+  const fromWallet=filtered.filter(x=>x.type!=="Delivery").reduce((s,x)=>s+x.commission,0);
+  document.getElementById("profitTotal").textContent="₦"+total.toLocaleString();
+  document.getElementById("profitTabCount").textContent="₦"+total.toLocaleString();
+  document.getElementById("profitHeader").textContent="PROFIT ₦"+total.toLocaleString();
+  document.getElementById("profitDeliveries").textContent="₦"+fromDel.toLocaleString();
+  document.getElementById("profitWallet").textContent="₦"+fromWallet.toLocaleString();
+  document.getElementById("profitCount").textContent=filtered.length+" tx";
+  if(!filtered.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:#9AA0B6">No commission yet<br><span style="font-size:11px">Will appear when driver pays commission</span></td></tr>';
+    return;
+  }
+  tbody.innerHTML=filtered.slice(0,200).map(p=>{
+    const dateStr=p.date.toLocaleDateString()+" "+p.date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return `<tr><td style="font-size:11px">${dateStr}</td><td style="font-size:11px"><b>${(p.driver||"").slice(0,20)}</b></td><td style="font-size:11px;max-width:180px;overflow:hidden">${p.source}</td><td style="font-size:10px">${p.ref}</td><td>₦${Number(p.amount||0).toLocaleString()}</td><td><span class="badge b-profit">₦${Number(p.commission||0).toLocaleString()}</span></td><td><span class="badge b-accepted" style="font-size:9px">${p.type}</span></td></tr>`;
+  }).join("");
+}
+
+function updateAssignSelect(){
+  const sel=document.getElementById("assignSalesSelect");
+  if(!sel) return;
+  sel.innerHTML=salesForce.map(s=>`<option value="${s.id}">${s.name||s.email} — ${s.referralCode||s.code||'NO-CODE'}</option>`).join("")||'<option>No sales agents</option>';
+}
+window.openAssignModal=(targetId, targetType)=>{
+  const target = (targetType==='driver'? drivers.find(d=>d.id===targetId) : customers.find(c=>c.id===targetId)) || {id:targetId, name:targetId};
+  assignTarget={id:targetId,type:targetType};
+  document.getElementById("assignTargetName").textContent=(target.name||target.email||targetId) + ` (${targetType})`;
+  updateAssignSelect();
+  const currentRefId = target.referredById || target.salesId || target.salesAgentId || "";
+  const currentCode = (target.referredBy||"").toLowerCase();
+  if(currentRefId){ document.getElementById("assignSalesSelect").value=currentRefId; }
+  else if(currentCode){
+    const found=salesForce.find(s=> (s.referralCode||"").toLowerCase()===currentCode || (s.code||"").toLowerCase()===currentCode);
+    if(found) document.getElementById("assignSalesSelect").value=found.id;
+  }
+  const selId=document.getElementById("assignSalesSelect").value;
+  const selAgent=salesForce.find(s=>s.id===selId);
+  document.getElementById("assignInfo").textContent= selAgent ? `Will assign to ${selAgent.name} (${selAgent.referralCode||selAgent.code})` : 'Select agent';
+  document.getElementById("assignModal").style.display="flex";
+};
+window.openAssignBulkModal=(salesId)=>{
+  const s=salesForce.find(x=>x.id===salesId); if(!s)return;
+  document.getElementById("driverDetailBody").innerHTML=`<div style="font-weight:900;margin-bottom:10px">Assign people to ${s.name}</div>
+  <input id="bulkAssignSearch" placeholder="Search..." class="input" style="margin-bottom:10px" oninput="renderBulkAssignList('${salesId}')">
+  <div id="bulkAssignList" style="max-height:50vh;overflow:auto"></div>`;
+  document.getElementById("driverDetailModal").style.display="flex";
+  renderBulkAssignList(salesId);
+};
+window.renderBulkAssignList=(salesId)=>{
+  const q=(document.getElementById("bulkAssignSearch")?.value||"").toLowerCase();
+  const all=[...drivers.map(d=>({...d,_type:'driver'})), ...customers.filter(c=>!isSalesDoc(c,c._source)).map(c=>({...c,_type:'customer'}))];
+  let filtered=all.filter(p=>!q|| (p.name||"").toLowerCase().includes(q)|| (p.email||"").toLowerCase().includes(q));
+  filtered=filtered.slice(0,80);
+  const container=document.getElementById("bulkAssignList");
+  if(!container) return;
+  container.innerHTML=filtered.map(p=>{
+    const isAssigned = (p.referredById===salesId || p.salesId===salesId);
+    return `<div style="padding:8px;border:1px solid ${isAssigned?'#A7F3D0':'#EEE8FF'};border-radius:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;background:${isAssigned?'#EDE9FE':'#fff'}">
+      <div><b>${p.name||'Unnamed'}</b><div style="font-size:11px;color:#8B8BA7">${p.email||''} • ${p._type}</div></div>
+      <button onclick="quickAssign('${p.id}','${p._type}','${salesId}')" class="btn ${isAssigned?'btn-ghost':'btn-violet'}" style="font-size:10px">${isAssigned?'Assigned':'Assign'}</button>
+    </div>`;
+  }).join("");
+};
+window.quickAssign=async(targetId, targetType, salesId)=>{
+  const s=salesForce.find(x=>x.id===salesId); if(!s)return;
+  try{
+    const payload={referredBy:(s.referralCode||s.code||''), referredByCode:(s.referralCode||s.code||''), referredById:s.id, salesId:s.id, salesAgentId:s.id, salesEmail:s.email||'', salesName:s.name||'', assignedAt:new Date().toISOString(), assignedBy:'admin'};
+    let updated=false;
+    for(const cName of ['drivers','customers','users']){
+      const ref=db.collection(cName).doc(targetId);
+      const snap=await ref.get().catch(()=>({exists:false}));
+      if(snap.exists){ await ref.set(payload,{merge:true}); updated=true; }
+    }
+    if(!updated){ await db.collection(targetType==='driver'?'drivers':'customers').doc(targetId).set(payload,{merge:true}); }
+    await db.collection("sales_force").doc(salesId).set({totalReferrals: firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(()=>{});
+    document.getElementById("bulkAssignList").innerHTML=`<div style="padding:20px;text-align:center;color:#5B21B6">✅ Assigned<br><button onclick="renderBulkAssignList('${salesId}')" class="btn btn-ghost" style="margin-top:10px">Continue</button></div>`;
+    setTimeout(()=>renderBulkAssignList(salesId),800);
+  }catch(e){alert(e.message);}
+};
+window.closeAssignModal=()=>{document.getElementById("assignModal").style.display="none";};
+window.confirmAssign=async()=>{
+  if(!assignTarget.id) return;
+  const salesId=document.getElementById("assignSalesSelect").value;
+  const s=salesForce.find(x=>x.id===salesId); if(!s){alert("Select agent");return;}
+  try{
+    const payload={referredBy:(s.referralCode||s.code||''), referredByCode:(s.referralCode||s.code||''), referredById:s.id, salesId:s.id, salesAgentId:s.id, salesEmail:s.email||'', salesName:s.name||'', assignedAt:new Date().toISOString(), assignedBy:'admin'};
+    for(const cName of ['drivers','customers','users']){
+      const ref=db.collection(cName).doc(assignTarget.id);
+      const snap=await ref.get().catch(()=>({exists:false}));
+      if(snap.exists) await ref.set(payload,{merge:true});
+    }
+    if(assignTarget.type==='driver') await db.collection("drivers").doc(assignTarget.id).set(payload,{merge:true}).catch(()=>{});
+    else await db.collection("customers").doc(assignTarget.id).set(payload,{merge:true}).catch(()=>{});
+    closeAssignModal();
+    alert(`Assigned to ${s.name}`);
+  }catch(e){alert(e.message);}
+};
+window.unassign=async()=>{
+  if(!assignTarget.id) return;
+  if(!confirm("Remove assignment?")) return;
+  try{
+    const payload={referredBy:firebase.firestore.FieldValue.delete(), referredByCode:firebase.firestore.FieldValue.delete(), referredById:firebase.firestore.FieldValue.delete(), salesId:firebase.firestore.FieldValue.delete(), salesAgentId:firebase.firestore.FieldValue.delete(), salesEmail:firebase.firestore.FieldValue.delete(), salesName:firebase.firestore.FieldValue.delete(), assignedAt:firebase.firestore.FieldValue.delete()};
+    for(const cName of ['drivers','customers','users']){
+      await db.collection(cName).doc(assignTarget.id).update(payload).catch(()=>{});
+    }
+    closeAssignModal();
+    alert("Unassigned");
+  }catch(e){alert(e.message);}
+};
+
+window.openWalletModal=(id)=>{ let d=drivers.find(x=>x.id===id)||customers.find(x=>x.id===id)||salesForce.find(x=>x.id===id)||{id}; let w=walletsMap.get(id)||{}; let main=Number(w.balance||d.walletBalance||0); document.getElementById("walletDriverName").textContent=d.name||id; document.getElementById("walletCurrent").textContent="₦"+main.toLocaleString(); document.getElementById("walletBreakdown").textContent=`Main ₦${main} Bonus ₦${Number(w.bonusBalance||0)}`; document.getElementById("walletAmountMain").value=""; document.getElementById("walletAmountBonus").value=""; document.getElementById("walletNew").textContent="₦"+main.toLocaleString(); selectedDriverForWallet={id,walletBalance:main}; document.getElementById("walletModal").style.display="flex"; };
+window.closeWalletModal=()=>{document.getElementById("walletModal").style.display="none";};
+document.getElementById("walletAmountMain")?.addEventListener("input",()=>{ if(!selectedDriverForWallet) return; const m=Number(document.getElementById("walletAmountMain").value||0); const b=Number(document.getElementById("walletAmountBonus").value||0); document.getElementById("walletNew").textContent="₦"+(Number(selectedDriverForWallet.walletBalance||0)+m+b).toLocaleString(); });
+document.getElementById("walletAmountBonus")?.addEventListener("input",()=>{ if(!selectedDriverForWallet) return; const m=Number(document.getElementById("walletAmountMain").value||0); const b=Number(document.getElementById("walletAmountBonus").value||0); document.getElementById("walletNew").textContent="₦"+(Number(selectedDriverForWallet.walletBalance||0)+m+b).toLocaleString(); });
+window.confirmWalletUpdate=async()=>{ if(!selectedDriverForWallet) return; const mainAmt=Number(document.getElementById("walletAmountMain").value||0); const bonusAmt=Number(document.getElementById("walletAmountBonus").value||0); if(!mainAmt && !bonusAmt){alert("Enter amount");return;} const id=selectedDriverForWallet.id; try{ const wRef=db.collection("wallets").doc(id); const snap=await wRef.get(); if(snap.exists) await wRef.update({balance:Number(snap.data().balance||0)+mainAmt,bonusBalance:Number(snap.data().bonusBalance||0)+bonusAmt}); else await wRef.set({balance:mainAmt,bonusBalance:bonusAmt},{merge:true}); closeWalletModal(); }catch(e){alert(e.message);} };
+window.openSalesModal=()=>{ editingSalesId=null; document.getElementById("salesModalTitle").textContent="Add Agent"; ["salesName","salesPhone","salesEmail","salesRefCode","salesCommRate","salesRegion"].forEach(id=>document.getElementById(id).value=""); document.getElementById("salesCommRate").value="10"; document.getElementById("salesModal").style.display="flex"; };
+window.closeSalesModal=()=>{document.getElementById("salesModal").style.display="none";};
+window.editSalesAgent=(id)=>{ const s=salesForce.find(x=>x.id===id); if(!s)return; editingSalesId=id; document.getElementById("salesModalTitle").textContent="Edit Agent"; document.getElementById("salesName").value=s.name||""; document.getElementById("salesPhone").value=s.phone||""; document.getElementById("salesEmail").value=s.email||""; document.getElementById("salesRefCode").value=s.referralCode||s.code||""; document.getElementById("salesCommRate").value=s.commissionRate||10; document.getElementById("salesRegion").value=s.region||""; document.getElementById("salesModal").style.display="flex"; };
+window.saveSalesAgent=async()=>{ const name=document.getElementById("salesName").value.trim(); const email=document.getElementById("salesEmail").value.trim(); const phone=document.getElementById("salesPhone").value.trim(); const refCode=document.getElementById("salesRefCode").value.trim().toUpperCase()||("FLOOT-"+name.slice(0,4).toUpperCase()+Math.floor(Math.random()*900+100)); const rate=Number(document.getElementById("salesCommRate").value||10); const region=document.getElementById("salesRegion").value.trim(); if(!name||!email){alert("Name+Email required");return;} const payload={name,email,phone,referralCode:refCode,code:refCode,commissionRate:rate,rate,region,status:"active",isSalesAgent:true,role:"sales",updatedAt:firebase.firestore.FieldValue.serverTimestamp()}; try{ if(editingSalesId) await db.collection("sales_force").doc(editingSalesId).set(payload,{merge:true}); else {payload.createdAt=firebase.firestore.FieldValue.serverTimestamp(); payload.totalReferrals=0; payload.totalEarnings=0; const docRef=await db.collection("sales_force").add(payload); await db.collection("wallets").doc(docRef.id).set({email,balance:0,bonusBalance:0,type:"sales"},{merge:true});} closeSalesModal(); }catch(e){alert(e.message);} };
+window.toggleSalesStatus=async(id)=>{ const s=salesForce.find(x=>x.id===id); const ns=s.status==="active"?"suspended":"active"; await db.collection("sales_force").doc(id).update({status:ns,isActive:ns==="active"}).catch(()=>db.collection("users").doc(id).update({status:ns})); };
+window.deleteSalesFull=async(id)=>{ if(!confirm("Delete sales agent + wallet?")) return; await db.collection("sales_force").doc(id).delete().catch(()=>{}); await db.collection("wallets").doc(id).delete().catch(()=>{}); alert("Deleted"); };
+window.deleteRequest=async(id)=>{ if(!confirm("Delete?")) return; await db.collection("delivery_requests").doc(id).delete(); };
+
+let supportFilter='all';
+window.setSupportFilter=(t)=>{supportFilter=t; document.getElementById("filterAll").className=t==='all'?"btn btn-violet":"btn btn-ghost"; document.getElementById("filterDriver").className=t==='driver'?"btn btn-violet":"btn btn-ghost"; document.getElementById("filterCustomer").className=t==='customer'?"btn btn-violet":"btn btn-ghost"; renderSupportList(); };
+function renderSupportList(){
+ const q=document.getElementById("supportSearch").value.toLowerCase();
+ let filtered=supportChats.filter(c=>{const search=!q|| (c.driverName||c.customerName||"").toLowerCase().includes(q)|| (c.lastMessage||"").toLowerCase().includes(q); const type=supportFilter==='all'||c._type===supportFilter; return search&&type;});
+ const list=document.getElementById("supportList");
+ list.innerHTML=filtered.map(chat=>{const name=chat.driverName||chat.customerName||chat.driverId||"Unknown"; return `<div class="support-item ${selectedChat&&selectedChat.id===chat.id?'active':''}" onclick="openChat('${chat.id}')"><div style="display:flex;justify-content:space-between"><div style="font-weight:800;font-size:13px">${name}</div><div style="font-size:10px;color:#8B8BA7">${chat.lastAt?new Date(chat.lastAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}</div></div><div style="font-size:11px;color:#8B8BA7">${(chat.lastMessage||"").slice(0,60)}</div></div>`;}).join("");
+}
+window.openChat=async(id)=>{ let chat=supportChats.find(c=>c.id===id); if(!chat)return; selectedChat=chat; document.getElementById("noChatSelected").style.display="none"; document.getElementById("chatActive").style.display="flex"; document.getElementById("chatDriverName").textContent=chat.driverName||chat.customerName||"Unknown"; document.getElementById("chatDriverInfo").textContent=chat.driverId||chat.customerId||""; renderSupportList(); if(chatUnsub)chatUnsub(); const coll=chat._type==='customer'?`customer_support_chats/${chat.id}/messages`:`support_chats/${chat.id}/messages`; chatUnsub=db.collection(coll).orderBy("createdAt","asc").onSnapshot(s=>{const msgs=s.docs.map(d=>({id:d.id,...d.data()})); const box=document.getElementById("chatMessages"); box.innerHTML=msgs.map(m=>{const isUser=m.sender==='driver'||m.sender==='customer'; return `<div style="max-width:76%;padding:10px 12px;border-radius:14px;font-size:13px;margin-bottom:8px;${isUser?'align-self:flex-start;background:#F3F0FF':'align-self:flex-end;background:#1E1B2E;color:#fff'}"><div>${m.text}</div><div style="font-size:9px;opacity:.6;margin-top:4px">${m.sender}</div></div>`;}).join(""); box.scrollTop=box.scrollHeight;}); };
+document.getElementById("sendReplyBtn").onclick=async()=>{ const input=document.getElementById("supportReplyInput"); const text=input.value.trim(); if(!text||!selectedChat)return; const collMsg=selectedChat._type==='customer'?`customer_support_chats/${selectedChat.id}/messages`:`support_chats/${selectedChat.id}/messages`; const collParent=selectedChat._type==='customer'?'customer_support_chats':'support_chats'; await db.collection(collMsg).add({text,sender:"support",createdAt:new Date().toISOString()}); await db.collection(collParent).doc(selectedChat.id).update({lastMessage:text,lastAt:new Date().toISOString(),updatedAt:new Date().toISOString()}); input.value=""; };
+
+document.querySelectorAll(".tab-pill").forEach(btn=>{ btn.onclick=()=>{ document.querySelectorAll(".tab-pill").forEach(b=>b.className="tab-pill tab-inactive"); btn.className="tab-pill tab-active"; const view=btn.dataset.view; ["requests","drivers","sales","wallets","payouts","profit","poolDrivers","poolRiders","support","customers"].forEach(v=>{const el=document.getElementById(v+"View"); if(el) el.style.display=v===view?"block":"none";}); document.getElementById("filterStatus").style.display=view==="requests"?"block":"none"; }});
+document.getElementById("filterStatus").onchange=renderRequests;
+document.getElementById("driverSearch").oninput=renderDrivers;
+document.getElementById("walletSearch").oninput=renderWallets;
+document.getElementById("salesSearch").oninput=renderSales;
+document.getElementById("customerSearch")?.addEventListener("input",renderCustomers);
+document.getElementById("supportSearch").oninput=renderSupportList;
+document.getElementById("profitSearch")?.addEventListener("input",renderProfit);
+document.getElementById("profitFilter")?.addEventListener("change",renderProfit);
+let editingSalesId=null;
+let selectedDriverForWallet=null;
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script><script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
